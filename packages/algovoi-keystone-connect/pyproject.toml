@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "algovoi-keystone-connect"
+version = "0.1.0"
+description = "Build and test Keystone bolt-ons with almost no boilerplate -- declare a connector in ~12 lines and verify any bolt-on at any stage of the flow offline (keystone toolkit, Apache-2.0)"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "AlgoVoi", email = "chopmob@gmail.com" }]
+keywords = ["keystone", "bolt-on", "connector", "execution_ref", "conformance", "jcs", "rfc8785", "agentic-payments", "algovoi"]
+requires-python = ">=3.10"
+dependencies = ["algovoi-execution-ref>=0.1.0", "rfc8785>=0.1.4"]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Libraries",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["algovoi_keystone_connect*"]

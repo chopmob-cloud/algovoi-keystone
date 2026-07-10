@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "algovoi-keystone-agent"
+version = "0.1.0"
+description = "The agentic behaviour layer for Keystone -- declare rules, behaviours and triggers, deploy them in an Engine, and gate any keystone-connect write; every firing is a content-addressed behaviour_ref (Apache-2.0)"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "AlgoVoi", email = "chopmob@gmail.com" }]
+keywords = ["keystone", "agent", "rules", "behaviours", "triggers", "policy", "guard", "execution_ref", "jcs", "rfc8785", "agentic-payments", "algovoi"]
+requires-python = ">=3.10"
+dependencies = ["algovoi-keystone-connect>=0.1.0", "algovoi-execution-ref>=0.1.0", "rfc8785>=0.1.4"]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Libraries",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["algovoi_keystone_agent*"]

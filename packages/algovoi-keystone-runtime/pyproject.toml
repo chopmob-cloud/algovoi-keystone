@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "algovoi-keystone-runtime"
+version = "0.1.0"
+description = "Run a Keystone chain and keep the evidence -- gate writes through the behaviour layer and persist every emitted reference (stage, behaviour, execution) to a queryable, tamper-evident SQLite journal that recomputes offline (Apache-2.0)"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "AlgoVoi", email = "chopmob@gmail.com" }]
+keywords = ["keystone", "runtime", "journal", "audit", "record-store", "execution_ref", "behaviour_ref", "jcs", "rfc8785", "agentic-payments", "algovoi"]
+requires-python = ">=3.10"
+dependencies = ["algovoi-keystone-connect>=0.1.0", "algovoi-keystone-agent>=0.1.0", "algovoi-execution-ref>=0.1.0", "rfc8785>=0.1.4"]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Libraries",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["algovoi_keystone_runtime*"]

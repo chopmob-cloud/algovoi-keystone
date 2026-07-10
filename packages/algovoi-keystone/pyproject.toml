@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "algovoi-keystone"
+version = "0.1.1"
+description = "The Keystone SDK umbrella -- one install for the whole bolt-on toolchain (connector builder + agentic behaviour layer) plus the `keystone` command line. Everything reduces to sha256 over RFC 8785 JCS (Apache-2.0)"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "AlgoVoi", email = "chopmob@gmail.com" }]
+keywords = ["keystone", "sdk", "cli", "bolt-on", "connector", "behaviour", "execution_ref", "jcs", "rfc8785", "agentic-payments", "algovoi"]
+requires-python = ">=3.10"
+dependencies = [
+    "algovoi-keystone-connect>=0.1.0",
+    "algovoi-keystone-agent>=0.1.0",
+    "algovoi-keystone-runtime>=0.1.0",
+    "algovoi-execution-ref>=0.1.0",
+    "rfc8785>=0.1.4",
+]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Libraries",
+    "Environment :: Console",
+]
+
+[project.optional-dependencies]
+validate = ["algovoi-keystone-validate>=0.1.0"]
+publish = ["build>=1.0", "twine>=5.0"]
+
+[project.scripts]
+keystone = "algovoi_keystone.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["algovoi_keystone*"]

@@ -1,0 +1,9 @@
+algovoi-keystone
+Copyright 2026 AlgoVoi
+
+This product includes software developed by AlgoVoi.
+Licensed under the Apache License, Version 2.0.
+
+An umbrella distribution over algovoi-keystone-connect and algovoi-keystone-agent,
+plus the `keystone` command line. Built on the AlgoVoi substrate: RFC 8785 (JCS)
+canonicalisation + SHA-256, producing content-addressed evidence recomputable offline.

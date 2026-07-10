@@ -1,0 +1,10 @@
+algovoi-keystone-runtime
+Copyright 2026 AlgoVoi
+
+This product includes software developed by AlgoVoi.
+Licensed under the Apache License, Version 2.0.
+
+Built on the AlgoVoi substrate: RFC 8785 (JCS) canonicalisation + SHA-256. The
+journal is a hash chain over content-addressed references, recomputable offline.
+The commercial audit-chain is the same shape with durable, post-quantum-signed,
+append-only storage.
