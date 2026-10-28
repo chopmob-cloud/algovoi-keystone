@@ -108,6 +108,14 @@ pytest packages
 Every stage is exercised end to end — including tamper-evidence negatives, where a modified field,
 a broken journal chain and a truncated journal must all fail verification.
 
+## Integrations
+
+This repository is the SDK and the chain. The adapters that carry a keystone `execution_ref` into
+other standards and frameworks — OpenTelemetry `gen_ai.*`, CloudEvents, W3C Verifiable Credentials,
+MCP, and the LangChain, CrewAI, AutoGen and ADK plugins — live in
+[`chopmob-cloud/AlgoVoi-Keystone-Adapters`](https://github.com/chopmob-cloud/AlgoVoi-Keystone-Adapters).
+They are Apache-2.0 too, and each one recomputes the ref locally rather than trusting the issuer.
+
 Documentation: https://docs.algovoi.co.uk/keystone-sdk
 
 ## Licence
