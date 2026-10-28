@@ -108,11 +108,34 @@ pytest packages
 Every stage is exercised end to end — including tamper-evidence negatives, where a modified field,
 a broken journal chain and a truncated journal must all fail verification.
 
+## Plugins
+
+These stamp a keystone decision onto the trace metadata an agent framework already collects, so
+the evidence travels with the run. They are duck-typed — no framework import — and depend only on
+`algovoi-substrate` and `rfc8785`.
+
+| Plugin | Stamps onto |
+|---|---|
+| [`plugins/algovoi-keystone-langchain`](plugins/algovoi-keystone-langchain) | LangChain callback handler config and run metadata |
+| [`plugins/algovoi-keystone-crewai`](plugins/algovoi-keystone-crewai) | CrewAI step and task metadata |
+| [`plugins/algovoi-keystone-autogen`](plugins/algovoi-keystone-autogen) | AutoGen message metadata |
+| [`plugins/algovoi-keystone-adk`](plugins/algovoi-keystone-adk) | Google ADK agent state updates and before-agent callbacks |
+
+```python
+from algovoi_keystone_langchain import keystone_trace_metadata, verify_trace_execution_ref
+
+meta = keystone_trace_metadata(
+    decision_ref="dec_01", action_type="transfer", scope="acct_42",
+    outcome="ALLOW", executed_at_ms=1700000000000,
+)
+verify_trace_execution_ref(meta)   # True — recomputed, not trusted
+```
+
 ## Integrations
 
-This repository is the SDK and the chain. The adapters that carry a keystone `execution_ref` into
-other standards and frameworks — OpenTelemetry `gen_ai.*`, CloudEvents, W3C Verifiable Credentials,
-MCP, and the LangChain, CrewAI, AutoGen and ADK plugins — live in
+This repository is the SDK, the chain and the plugins. The adapters that carry a keystone
+`execution_ref` into other standards — OpenTelemetry `gen_ai.*`, CloudEvents, W3C Verifiable
+Credentials and MCP — live in
 [`chopmob-cloud/AlgoVoi-Keystone-Adapters`](https://github.com/chopmob-cloud/AlgoVoi-Keystone-Adapters).
 They are Apache-2.0 too, and each one recomputes the ref locally rather than trusting the issuer.
 
