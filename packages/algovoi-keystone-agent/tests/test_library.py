@@ -14,7 +14,7 @@ def test_spend_cap_rule():
     r = check_rule(spend_cap(500), [
         (synth_event("spend_decision", amount=900), "BLOCK"),
         (synth_event("spend_decision", amount=500), "ALLOW"),
-        (synth_event("spend_decision"), "ALLOW"),  # missing amount -> 0
+        (synth_event("spend_decision"), "BLOCK"),  # missing amount fails closed
     ])
     assert r.ok, r
 

@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "algovoi-execution-ref"
+version = "0.4.0"
+description = "AlgoVoi execution_ref -- decision-bound execution evidence bound to the keystone. Proves an executed action is consistent with the decision that authorized it. Runs on any algovoi-substrate version (v0/v1); uses only JCS RFC 8785 canonicalisation."
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [
+  { name = "AlgoVoi", email = "chopmob@gmail.com" },
+]
+keywords = [
+  "x402", "ap2", "a2a", "mpp",
+  "jcs", "rfc8785", "canonicalisation",
+  "agentic-payments", "execution_ref", "keystone",
+  "decision-bound", "execution-evidence",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Financial and Insurance Industry",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Security :: Cryptography",
+  "Topic :: Software Development :: Libraries",
+  "Typing :: Typed",
+]
+# Depends only on the stable JCS canonicalisation, present in every substrate
+# release, so this app runs unchanged on substrate v0 (0.x) and v1 (1.x).
+dependencies = [
+  "algovoi-substrate>=0.3.0",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=7", "pytest-cov>=4"]
+
+[project.scripts]
+algovoi-execution-ref = "algovoi_execution_ref.__main__:main"
+
+[project.urls]
+Homepage = "https://api.algovoi.co.uk"
+Documentation = "https://docs.algovoi.co.uk/execution-ref"
+Repository = "https://github.com/chopmob-cloud/algovoi-execution-ref"
+Issues = "https://github.com/chopmob-cloud/algovoi-execution-ref/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["algovoi_execution_ref*"]
+
+[tool.setuptools.package-data]
+algovoi_execution_ref = ["py.typed"]
+
+[project.entry-points."algovoi.keystone.steps"]
+execution = "algovoi_execution_ref.keystone:keystone_step"

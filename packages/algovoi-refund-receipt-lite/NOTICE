@@ -1,0 +1,14 @@
+﻿algovoi-refund-receipt-lite
+Copyright 2026 AlgoVoi (chopmob@gmail.com)
+
+Licensed under the Apache License, Version 2.0.
+You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+Content-addresses a payment refund (subject_ref + refund_result + refund_amount) into a
+deterministic refund_ref.
+Built on the AlgoVoi substrate's RFC 8785 JCS + SHA-256
+canonicalisation discipline (imported by hash, not modified), specified in
+draft-hopley-x402-canonicalisation-jcs-v1
+(https://datatracker.ietf.org/doc/draft-hopley-x402-canonicalisation-jcs-v1/ -- IETF I-D,
+sole AlgoVoi authorship). Conformance vectors:
+https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors

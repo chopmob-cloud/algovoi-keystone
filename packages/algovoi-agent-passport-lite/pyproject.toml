@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "algovoi-agent-passport-lite"
+version = "0.4.0"
+description = "Open, content-addressed agent identity references bound into the pinned AlgoVoi substrate (agent_id + issuer + scope + validity window; L1 frozen)"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "AlgoVoi", email = "chopmob@gmail.com" }]
+keywords = ["jcs", "rfc8785", "agent-passport", "agent-identity", "agentic-payments", "algovoi"]
+dependencies = ["algovoi-substrate>=0.4.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "build>=1.2", "rfc8785>=0.1.2"]
+
+[project.urls]
+"Conformance vectors" = "https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors"
+"Commercial Agent Passport" = "https://docs.algovoi.co.uk/agent-passport"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["algovoi_agent_passport_lite*"]
+
+[project.entry-points."algovoi.keystone.steps"]
+passport = "algovoi_agent_passport_lite.keystone:keystone_step"

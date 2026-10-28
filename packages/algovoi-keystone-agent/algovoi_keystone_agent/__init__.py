@@ -16,6 +16,7 @@ and standard SHA-256, with no AlgoVoi software in their trust base.
 """
 from __future__ import annotations
 
+import hashlib
 import time
 from collections import namedtuple
 
@@ -52,6 +53,7 @@ __all__ = [
     "VERDICTS", "Event", "Rule", "Trigger", "Behaviour", "Engine", "Denied",
     "rule", "trigger", "behaviour",
     "synth_event", "check_rule", "check_trigger", "check_behaviour",
+    "check_guard_coverage",
     "keystone_ref", "synth_ref", "Report",
 ]
 
@@ -71,7 +73,7 @@ def _jsonable(value):
     if value is None or isinstance(value, (str, bool, int, float)):
         return value
     if isinstance(value, bytes):
-        return {"__bytes__": len(value)}
+        return {"__bytes__": len(value), "sha256": hashlib.sha256(value).hexdigest()}
     if isinstance(value, dict):
         return {str(k): _jsonable(v) for k, v in value.items()}
     if isinstance(value, (list, tuple)):
@@ -194,6 +196,11 @@ class Engine:
         """Fire every behaviour whose trigger matches `event`; return the list of
         firing records (also appended to ``log``)."""
         event = event if isinstance(event, Event) else _coerce_event(event)
+        # Snapshot the evidence identity before any user callback can mutate the
+        # event -- rules/actions/observers must not be able to change what was
+        # recorded and judged.
+        event_ref = event.ref
+        stage = event.stage
         fired = []
         for b in self.behaviours:
             if not _matches(b.on, event):
@@ -205,8 +212,8 @@ class Engine:
                 "decision_ref": self.decision_ref,
                 "behaviour": b.name,
                 "rule": b.rule.name,
-                "stage": event.stage,
-                "event_ref": event.ref,
+                "stage": stage,
+                "event_ref": event_ref,
                 "verdict": verdict,
                 "executed_at_ms": executed_at_ms,
             }
@@ -214,9 +221,9 @@ class Engine:
                 record["action_outcome"] = _jsonable(action_outcome)
             record["behaviour_ref"] = keystone_ref(record)
             self.log.append(record)
-            fired.append(record)
+            fired.append(dict(record))
             if self._on_fire is not None:
-                self._on_fire(record)
+                self._on_fire(dict(record))
         return fired
 
     def verdict(self, event):
@@ -227,12 +234,24 @@ class Engine:
             return "ALLOW"
         return max((r["verdict"] for r in fired), key=lambda v: _STRENGTH[v])
 
-    def guard(self, connect_client, *, stage="execution"):
+    def guard(self, connect_client, *, stage="execution", allow_inert=False):
         """Wrap a keystone-connect client so each method call is dispatched as an
         event first. If any behaviour returns BLOCK, the call is denied (``Denied``
         raised) before it reaches the data plane; reads and non-matching calls
-        pass straight through (their triggers simply do not match)."""
+        pass straight through (their triggers simply do not match).
+
+        A behaviour whose trigger stage is set and differs from ``stage`` can never
+        fire here -- the guard would look like governance while enforcing nothing.
+        That is refused (``ValueError``) unless ``allow_inert=True`` is passed
+        deliberately, so a mis-wired deployment fails loudly instead of open.
+        """
         engine = self
+        inert = [b.name for b in self.behaviours if b.on.stage is not None and b.on.stage != stage]
+        if inert and not allow_inert:
+            raise ValueError(
+                "behaviours %r trigger on a stage other than %r, so they can never fire "
+                "in this guard; use a behaviour for this stage or pass allow_inert=True"
+                % (inert, stage))
 
         class _Guarded:
             def __init__(self, inner):
@@ -250,8 +269,9 @@ class Engine:
                         "kwargs": _jsonable(kwargs),
                         "decision_ref": engine.decision_ref,
                     })
-                    if engine.verdict(ev) == "BLOCK":
-                        raise Denied(engine.log[-1])
+                    blocking = [r for r in engine.dispatch(ev) if r["verdict"] == "BLOCK"]
+                    if blocking:
+                        raise Denied(blocking[0])
                     return attr(*args, **kwargs)
 
                 return _wrapped
@@ -347,4 +367,24 @@ def check_behaviour(bhv, events, *, decision_ref=None, expect=None, clock_ms=Non
     if expect is not None:
         r.add("verdict == %s" % expect, all(rec["verdict"] == expect for rec in fired))
 
+    return r
+
+
+def check_guard_coverage(bhvs, *, stage="execution"):
+    """Assert every behaviour can actually fire in a guard dispatching at `stage`.
+
+    A behaviour whose trigger stage is set to something the guard never dispatches
+    is dead weight: the deployment reads as governed but every write passes. This is
+    the check that catches `guard(..., behaviours=[cap_charges(500)])`, where the
+    behaviour watches `spend_decision` and the guard fires `execution`.
+    """
+    r = Report()
+    bhvs = list(bhvs)
+    wildcard = [b.name for b in bhvs if b.on.stage is None]
+    inert = [b.name for b in bhvs if b.on.stage is not None and b.on.stage != stage]
+    r.add("at least one behaviour deployed", bool(bhvs))
+    r.add("every trigger stage matches the guard's dispatch stage %r" % stage, not inert,
+          "" if not inert else "never fire: %s" % ", ".join(inert))
+    if wildcard:
+        r.add("wildcard-stage triggers reach the guard", True, "%d wildcard" % len(wildcard))
     return r

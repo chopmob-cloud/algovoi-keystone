@@ -19,8 +19,11 @@ no AlgoVoi software in the trust base. Apache-2.0.
 from __future__ import annotations
 
 import hashlib
+import inspect
 import time
 from collections import namedtuple
+from collections.abc import Mapping
+from types import MappingProxyType
 from typing import Any, Callable
 
 import rfc8785
@@ -60,7 +63,7 @@ class _Bound:
     """A drop-in wrapper produced by ``connector(...)``. Attribute access falls through to the
     wrapped client; declared write methods are bound to the keystone."""
 
-    def __init__(self, client: Any, prefix: str, writes: dict, decision_ref: str,
+    def __init__(self, client: Any, prefix: str, writes: Mapping, decision_ref: str,
                  clock_ms: Callable[[], int] | None, on_execution: Callable[[dict], None] | None):
         if not (isinstance(decision_ref, str) and decision_ref):
             raise ValueError("decision_ref must be a non-empty string")
@@ -81,7 +84,7 @@ class _Bound:
         self.execution_ref = ref
         self.executions.append(rec)
         if self._on:
-            self._on(rec)
+            self._on(dict(rec))
         return rec
 
     def _wrap(self, name: str, action: str, scope_fn: Callable[[Call], str]) -> Callable:
@@ -90,11 +93,25 @@ class _Bound:
         def caller(*args: Any, **kwargs: Any) -> Any:
             scope = str(scope_fn(Call(args, kwargs, self._client)) or "")
             ts = self._clock()
+            # Validate the complete evidence preimage before any side effect.
+            execution_ref(self._decision_ref, f"{self._prefix}:{action}", scope,
+                          "COMMITTED", ts)
             try:
                 result = fn(*args, **kwargs)
             except Exception:
                 self._record(action, scope, "FAILED", ts)
                 raise
+            if inspect.isawaitable(result):
+                async def finish():
+                    try:
+                        value = await result
+                    except BaseException:
+                        # Cancellation is not a successful commit either.
+                        self._record(action, scope, "FAILED", ts)
+                        raise
+                    self._record(action, scope, "COMMITTED", ts)
+                    return value
+                return finish()
             self._record(action, scope, "COMMITTED", ts)
             return result
 
@@ -126,10 +143,11 @@ def connector(prefix: str, *, writes: dict) -> Callable:
         raise ValueError("prefix must be a non-empty string")
     if not writes:
         raise ValueError("writes must map at least one method to (action, scope_fn)")
+    write_specs = MappingProxyType({name: tuple(spec) for name, spec in writes.items()})
 
     def factory(client: Any, *, decision_ref: str, clock_ms: Callable[[], int] | None = None,
                 on_execution: Callable[[dict], None] | None = None) -> _Bound:
-        return _Bound(client, prefix, writes, decision_ref, clock_ms, on_execution)
+        return _Bound(client, prefix, write_specs, decision_ref, clock_ms, on_execution)
 
     def tamper_detected(claimed_ref: str, *, decision_ref: str, action: str, scope: str,
                         outcome: str, executed_at_ms: int) -> bool:
@@ -140,7 +158,7 @@ def connector(prefix: str, *, writes: dict) -> Callable:
             return True
 
     factory.prefix = prefix
-    factory.writes = writes
+    factory.writes = write_specs
     factory.tamper_detected = tamper_detected
     return factory
 

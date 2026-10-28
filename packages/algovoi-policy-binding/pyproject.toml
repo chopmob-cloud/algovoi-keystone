@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "algovoi-policy-binding"
+version = "0.4.0"
+description = "Additive policy-snapshot binding for the AlgoVoi substrate (version-provable, rotation-detectable; L1 frozen)"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "AlgoVoi", email = "chopmob@gmail.com" }]
+keywords = ["jcs", "rfc8785", "policy", "audit", "tamper-evident", "agentic-payments", "algovoi"]
+dependencies = ["rfc8785>=0.1.2"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "build>=1.2"]
+
+[project.urls]
+"Conformance vectors" = "https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["algovoi_policy_binding*"]
+
+[project.entry-points."algovoi.keystone.steps"]
+policy_bound = "algovoi_policy_binding.keystone:keystone_step"

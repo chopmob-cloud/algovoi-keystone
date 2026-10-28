@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "algovoi-composite-trust-query-lite"
+version = "0.4.0"
+description = "Open, content-addressed trust-verdict references bound into the pinned AlgoVoi substrate (subject refs + trust outcome; caps the open lifecycle; binding only, L1 frozen)"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "AlgoVoi", email = "chopmob@gmail.com" }]
+keywords = ["jcs", "rfc8785", "composite-trust-query", "agentic-payments", "trust", "algovoi"]
+dependencies = ["algovoi-substrate>=0.4.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "build>=1.2", "rfc8785>=0.1.2"]
+
+[project.urls]
+"Conformance vectors" = "https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors"
+"Commercial Composite Trust Query" = "https://docs.algovoi.co.uk/composite-trust-query"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["algovoi_composite_trust_query_lite*"]
+
+[project.entry-points."algovoi.keystone.steps"]
+trust_query = "algovoi_composite_trust_query_lite.keystone:keystone_step"

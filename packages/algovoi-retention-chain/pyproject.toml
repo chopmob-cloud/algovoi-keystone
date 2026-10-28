@@ -1,0 +1,69 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "algovoi-retention-chain"
+version = "0.4.0"
+description = "AlgoVoi Retention Chain Substrate — self-verifiable audit chain linking payment receipts without external infrastructure. MiCA Art. 68(9), DORA Art. 17, AMLR Art. 77."
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "AlgoVoi", email = "chopmob@gmail.com" }]
+keywords = [
+    "retention-chain", "audit-chain", "payment-receipts",
+    "jcs", "rfc8785", "rfc9421", "http-message-signatures",
+    "x402", "mica", "dora", "amlr", "agentic-payments", "compliance"
+]
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Office/Business :: Financial",
+    "Topic :: Security :: Cryptography",
+]
+requires-python = ">=3.10"
+dependencies = ["rfc8785>=0.1.2"]
+
+[project.optional-dependencies]
+rfc9421 = [
+    "algovoi-rfc9421-verifier>=0.3.0",
+]
+serve = [
+    "fastapi>=0.111,<1.0",
+    "uvicorn[standard]>=0.29,<1.0",
+]
+dev = [
+    "pytest>=8.0",
+    "algovoi-rfc9421-verifier>=0.3.0",
+    "algovoi-rfc9421-signer>=0.1.0",
+    "fastapi>=0.111,<1.0",
+    "uvicorn[standard]>=0.29,<1.0",
+    "httpx>=0.27,<1.0",
+    "build>=1.2",
+]
+
+[project.scripts]
+algovoi-retention-chain = "algovoi_retention_chain.service:main"
+
+[project.urls]
+Homepage = "https://docs.algovoi.co.uk/retention-chain-substrate"
+Repository = "https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors"
+Changelog = "https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors/blob/main/CHANGELOG.md"
+
+[tool.hatch.build.targets.wheel]
+packages = ["algovoi_retention_chain"]
+# COMMERCIAL / LOCAL-ONLY: the RFC 9421 settlement-action binding signed layer
+# is never published. Excluded from the public wheel and sdist.
+exclude = ["algovoi_retention_chain/settlement_binding_rfc9421.py"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/algovoi_retention_chain", "/README.md", "/CHANGELOG.md", "/LICENSE"]
+exclude = ["algovoi_retention_chain/settlement_binding_rfc9421.py"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[project.entry-points."algovoi.keystone.steps"]
+retention = "algovoi_retention_chain.keystone:keystone_step"

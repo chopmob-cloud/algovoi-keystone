@@ -109,10 +109,32 @@ def cmd_doctor(_args):
 # --------------------------------------------------------------------------- #
 
 def _verify_record(rec):
-    """(ok, ref_field, note). Handles execution_ref records and any
-    content-addressed (keystone_ref) record such as a behaviour_ref."""
-    if isinstance(rec, dict) and "execution_ref" in rec and all(
-            k in rec for k in ("decision_ref", "action_type", "scope", "outcome", "executed_at_ms")):
+    """(ok, ref_field, note) over the same strict rules the runtime journal uses.
+
+    Delegating to ``algovoi_keystone_runtime.verify_record`` keeps one definition of
+    "recomputes" across offline validation and the durable journal: a typed
+    ``execution_keystone`` wrapper is checked on every tier (decision, execution,
+    trust query, chain), and a fabricated ``*_ref`` field cannot stand in for a
+    real self-reference.
+    """
+    if not isinstance(rec, dict):
+        return (False, "?", "record is not a JSON object")
+    try:
+        from algovoi_keystone_runtime import verify_record
+    except Exception:  # runtime absent: fall back to the local, stricter check
+        verify_record = None
+    if verify_record is not None:
+        try:
+            ok = verify_record(rec)
+        except Exception as exc:
+            return (False, "?", "cannot verify: %r" % exc)
+        field = next((k for k in ("execution_ref", "behaviour_ref", "stage_ref")
+                      if k in rec), "?")
+        return (ok, field, "self-reference recomputes" if ok else "self-reference does not recompute")
+    if "execution_ref" in rec:
+        if not all(k in rec for k in
+                   ("decision_ref", "action_type", "scope", "outcome", "executed_at_ms")):
+            return (False, "execution_ref", "incomplete execution record")
         try:
             from algovoi_execution_ref import execution_ref
             want = execution_ref(rec["decision_ref"], rec["action_type"],
@@ -120,25 +142,40 @@ def _verify_record(rec):
             return (want == rec["execution_ref"], "execution_ref", "execution record")
         except Exception as exc:
             return (False, "execution_ref", "cannot recompute: %r" % exc)
-    if isinstance(rec, dict):
-        candidates = [k for k in rec if isinstance(rec.get(k), str)
-                      and rec[k].startswith("sha256:") and (k.endswith("_ref") or k == "ref")]
-        for key in candidates:
-            body = {k: v for k, v in rec.items() if k != key}
-            try:
-                if _keystone_ref(body) == rec[key]:
-                    return (True, key, "content-addressed")
-            except Exception:
-                pass
-    return (False, "?", "no self-ref recomputes")
+    self_refs = [k for k in ("behaviour_ref", "stage_ref") if k in rec]
+    if len(self_refs) != 1:
+        return (False, "?", "record must carry exactly one self-reference")
+    key = self_refs[0]
+    body = {k: v for k, v in rec.items() if k != key}
+    try:
+        ok = _keystone_ref(body) == rec[key]
+    except Exception as exc:
+        return (False, key, "cannot recompute: %r" % exc)
+    return (ok, key, "content-addressed" if ok else "does not recompute")
+
+
+
+def _unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate JSON member")
+        result[key] = value
+    return result
 
 
 def cmd_validate(args):
     try:
-        data = json.load(open(args.file, encoding="utf-8"))
+        with open(args.file, "rb") as source:
+            raw = source.read(8 * 1024 * 1024 + 1)
+        if len(raw) > 8 * 1024 * 1024:
+            raise ValueError("evidence exceeds the 8 MiB input limit")
+        data = json.loads(raw.decode("utf-8"), object_pairs_hook=_unique_object)
     except Exception as exc:
         _bad("cannot read %s: %r" % (args.file, exc)); return 2
     records = data if isinstance(data, list) else [data]
+    if not records:
+        _bad("no records to validate"); return 1
     print("keystone validate %s -- %d record(s)" % (args.file, len(records)))
     fails = 0
     for i, rec in enumerate(records):
@@ -291,18 +328,32 @@ def cmd_journal(args):
         from algovoi_keystone_runtime import Journal
     except Exception as exc:
         _bad("algovoi-keystone-runtime not installed: %r" % exc); return 2
-    j = Journal(args.db)
+    if not os.path.exists(args.db):
+        _bad("journal not found: %s" % args.db); return 2
+    # Read-only first: a verification command must never create a database, write
+    # the schema, or mutate the evidence it is meant to inspect. Corrupt state then
+    # surfaces as a failed report rather than a traceback.
     try:
-        print("keystone journal %s -- %d entries" % (args.db, j.count()))
+        j = Journal(args.db, read_only=True)
+    except Exception as exc:
+        _bad("cannot open %s: %r" % (args.db, exc)); return 2
+    try:
+        report = j.verify(expected_head=getattr(args, "expected_head", None))
+        print(report)
+        if not report.ok:
+            return 1
+        count = j.count()
+        print("keystone journal %s -- %d entries" % (args.db, count))
         if args.show:
             for rec in j.records():
-                ref = rec.get("execution_ref") or rec.get("behaviour_ref") or rec.get("stage_ref") or "?"
+                ref = (rec.get("execution_ref") or rec.get("behaviour_ref")
+                       or rec.get("stage_ref") or "?")
                 tag = rec.get("stage") or ("execution" if "execution_ref" in rec else "?")
                 note = rec.get("verdict", "")
                 print("  %-12s %s  %s" % (tag, ref[:24] + "...", note))
-        report = j.verify()
-        print(report)
-        return 0 if report.ok else 1
+        return 0
+    except Exception as exc:
+        _bad("journal verification failed: %r" % exc); return 2
     finally:
         j.close()
 
@@ -357,6 +408,8 @@ def build_parser():
     jn = sub.add_parser("journal", help="verify (and list) a runtime journal")
     jn.add_argument("db")
     jn.add_argument("--show", action="store_true", help="list the entries")
+    jn.add_argument("--expected-head", dest="expected_head", default=None,
+                    help="pin the journal head you independently trust")
     jn.set_defaults(fn=cmd_journal)
 
     pub = sub.add_parser("publish", help="build + check a bolt-on (mirror-first)")

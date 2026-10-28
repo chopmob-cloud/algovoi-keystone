@@ -48,16 +48,29 @@ def test_bind_journals_behaviour_and_execution():
     rt, dref = _runtime()
     inner = FakeS3()
     client = _s3_connector()(inner, decision_ref=dref)
-    s3 = rt.bind(client, behaviours=[cap_charges(500), deny_writes_to("Bucket", ["locked"], method="put_object")])
+    # Both behaviours must be able to fire at the guard's dispatch stage. `cap_charges`
+    # watches spend_decision and would be inert here (see test_bind_refuses_inert_behaviour).
+    s3 = rt.bind(client, behaviours=[
+        deny_writes_to("Bucket", ["locked"], method="put_object"),
+        deny_writes_to("Key", ["blocked"], method="put_object"),
+    ])
 
-    s3.put_object(Bucket="receipts", Key="r1", Body=b"{}")   # allowed
+    s3.put_object(Bucket="receipts", Key="r1", Body=b"{}")   # allowed by both
     assert len(inner.puts) == 1
 
     kinds = [r for r in rt.journal.by_kind("execution")]
     behs = [r for r in rt.journal.by_kind("behaviour")]
     assert len(kinds) == 1                          # one execution journaled
-    assert len(behs) == 1                           # deny_writes_to fired ALLOW (cap has no execution-stage trigger)
+    assert len(behs) == 2                           # both behaviours fired ALLOW
     assert rt.journal.verify().ok
+
+
+def test_bind_refuses_behaviour_that_can_never_fire():
+    """A spend_decision behaviour in an execution guard is a no-op gate, not governance."""
+    rt, dref = _runtime()
+    client = _s3_connector()(FakeS3(), decision_ref=dref)
+    with pytest.raises(ValueError, match="never fire"):
+        rt.bind(client, behaviours=[cap_charges(500)])
 
 
 def test_blocked_write_journals_block_not_execution():

@@ -1,0 +1,8 @@
+algovoi-revocation-ref
+Copyright (c) AlgoVoi
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Content-addressed revocation references (construction, tamper-detection and chain
+verification). The revocation-cascade PROOF is a separate AlgoVoi component and is
+not included here.

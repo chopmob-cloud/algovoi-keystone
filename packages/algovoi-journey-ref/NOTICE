@@ -1,0 +1,7 @@
+algovoi-journey-ref
+Copyright (c) AlgoVoi
+
+Licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Content-addressed journey references (construction and tamper-detection). The
+cross-party journey PROOF is a separate AlgoVoi component and is not included here.

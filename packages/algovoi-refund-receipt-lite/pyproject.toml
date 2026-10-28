@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "algovoi-refund-receipt-lite"
+version = "0.4.0"
+description = "Open, content-addressed refund references bound into the pinned AlgoVoi substrate (subject_ref + refund result + amount; closes the payment lifecycle after settlement; L1 frozen)"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "AlgoVoi", email = "chopmob@gmail.com" }]
+keywords = ["jcs", "rfc8785", "refund-receipt", "agentic-payments", "settlement", "algovoi"]
+dependencies = ["algovoi-substrate>=0.4.0"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "build>=1.2", "rfc8785>=0.1.2"]
+
+[project.urls]
+"Conformance vectors" = "https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors"
+"Commercial Refund Receipt" = "https://docs.algovoi.co.uk/refund-receipt"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["algovoi_refund_receipt_lite*"]
+
+[project.entry-points."algovoi.keystone.steps"]
+refund = "algovoi_refund_receipt_lite.keystone:keystone_step"

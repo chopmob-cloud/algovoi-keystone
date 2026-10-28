@@ -10,6 +10,7 @@ Each rule reads a field from the event top level and, failing that, from a neste
 and on a guarded keystone-connect call (where parameters arrive under ``kwargs``).
 """
 from . import behaviour, rule, trigger
+from decimal import Decimal, InvalidOperation
 
 __all__ = [
     "spend_cap", "flag_over", "allow_list", "deny_list", "scope_fence",
@@ -34,15 +35,44 @@ def _get(event, field):
 # --------------------------------------------------------------------------- #
 
 def spend_cap(limit, *, field="amount"):
-    """BLOCK when ``event[field]`` exceeds `limit`, else ALLOW."""
-    return rule("spend_cap<=%s" % limit,
-                lambda ev: "BLOCK" if (_get(ev, field) or 0) > limit else "ALLOW")
+    """BLOCK when ``event[field]`` exceeds `limit`, else ALLOW.
+
+    A missing or non-numeric value fails CLOSED (BLOCK): a spend whose amount
+    cannot be compared against the cap must never silently slip under it.
+    """
+    cap = Decimal(str(limit))
+
+    def predicate(ev):
+        value = _get(ev, field)
+        if isinstance(value, bool) or value is None:
+            return "BLOCK"
+        try:
+            amount = Decimal(value) if isinstance(value, (int, float)) else Decimal(str(value))
+            return "BLOCK" if amount > cap else "ALLOW"
+        except (InvalidOperation, ValueError, TypeError):
+            return "BLOCK"
+
+    return rule("spend_cap<=%s" % limit, predicate)
 
 
 def flag_over(limit, *, field="amount"):
-    """FLAG (do not block) when ``event[field]`` exceeds `limit`, else ALLOW."""
-    return rule("flag_over>%s" % limit,
-                lambda ev: "FLAG" if (_get(ev, field) or 0) > limit else "ALLOW")
+    """FLAG (do not block) when ``event[field]`` exceeds `limit`, else ALLOW.
+
+    A missing or non-numeric value is FLAGGED, never silently allowed.
+    """
+    cap = Decimal(str(limit))
+
+    def predicate(ev):
+        value = _get(ev, field)
+        if isinstance(value, bool) or value is None:
+            return "FLAG"
+        try:
+            amount = Decimal(value) if isinstance(value, (int, float)) else Decimal(str(value))
+            return "FLAG" if amount > cap else "ALLOW"
+        except (InvalidOperation, ValueError, TypeError):
+            return "FLAG"
+
+    return rule("flag_over>%s" % limit, predicate)
 
 
 def deny_list(field, values, *, verdict="BLOCK"):

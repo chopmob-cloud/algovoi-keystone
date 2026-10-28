@@ -1,0 +1,19 @@
+AlgoVoi Recompute Drift
+Copyright 2026 AlgoVoi (chopmob@gmail.com)
+
+Licensed under the Apache License, Version 2.0.
+You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+This package is an adopter of the AlgoVoi substrate. It recomputes the AlgoVoi
+action_ref (RFC 8785 JCS over {agent_id, action_type, scope, timestamp_ms}, with an
+integer-millisecond timestamp_ms) and exposes a drift predicate over it. The
+canonicalisation base and the action_ref derivation are imported from the substrate
+and are not modified.
+
+Canonical conformance vectors: conformance/recompute_drift_v1/vectors.json, whose
+action_ref values are produced by the algovoi-substrate package.
+
+If you build on this package, preserve this NOTICE file in your distribution and pin
+the version (algovoi-recompute-drift==0.1.0). To receive a free v0 licence key for
+algovoi-mandate-auditor, contact chopmob@gmail.com with your project's import-by-hash
+evidence and a copy of this NOTICE.

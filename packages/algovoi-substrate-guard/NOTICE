@@ -1,0 +1,14 @@
+﻿algovoi-substrate-guard
+Copyright 2026 AlgoVoi (chopmob@gmail.com)
+
+Licensed under the Apache License, Version 2.0.
+You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+Input-bounds gate that runs before canonicalisation, rejecting resource-hostile payloads with a
+named code and producing a content-addressed profile_ref.
+Built on the AlgoVoi substrate's RFC 8785 JCS + SHA-256
+canonicalisation discipline (imported by hash, not modified), specified in
+draft-hopley-x402-canonicalisation-jcs-v1
+(https://datatracker.ietf.org/doc/draft-hopley-x402-canonicalisation-jcs-v1/ -- IETF I-D,
+sole AlgoVoi authorship). Conformance vectors:
+https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors

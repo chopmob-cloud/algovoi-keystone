@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "algovoi-revocation-ref"
+version = "0.4.0"
+description = "Content-addressed revocation references for the AlgoVoi substrate: tamper-evident, chainable revocations for agentic credentials and keys, verified offline from the bytes."
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+authors = [{ name = "AlgoVoi", email = "chopmob@gmail.com" }]
+keywords = ["jcs", "rfc8785", "revocation", "agentic-payments", "algovoi", "content-addressed", "offline-verifiable"]
+dependencies = ["algovoi-substrate>=0.4.0"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security :: Cryptography",
+]
+
+[project.urls]
+Homepage = "https://algovoi.co.uk"
+Documentation = "https://docs.algovoi.co.uk/keystone"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["algovoi_revocation_ref*"]
+
+[project.entry-points."algovoi.keystone.steps"]
+revocation = "algovoi_revocation_ref.keystone:keystone_step"

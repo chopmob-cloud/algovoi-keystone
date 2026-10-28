@@ -1,0 +1,13 @@
+AlgoVoi Retention Chain
+Copyright 2026 AlgoVoi (chopmob@gmail.com)
+
+Licensed under the Apache License, Version 2.0.
+You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0
+
+Normative specification: draft-hopley-x402-retention-chain (IETF Independent Submission)
+Canonical conformance vectors: vectors/retention-chain-v1.json (verified across 7 language
+implementations 2026-06-17).
+
+If you build on this package, preserve this NOTICE file in your distribution.
+To receive a free v0 licence key for algovoi-mandate-auditor, contact chopmob@gmail.com
+with your project's import-by-hash evidence and a copy of this NOTICE.
