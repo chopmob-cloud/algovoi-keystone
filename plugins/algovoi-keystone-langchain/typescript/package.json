@@ -1,0 +1,16 @@
+{
+  "name": "@algovoi/keystone-langchain",
+  "version": "0.1.0",
+  "description": "Carry an AlgoVoi keystone decision into a LangChain run trace: a recomputable execution_ref under algovoi.keystone.*, verifiable offline",
+  "keywords": ["langchain", "langsmith", "agent", "tracing", "observability", "keystone", "execution_ref", "jcs", "rfc8785"],
+  "license": "Apache-2.0",
+  "author": "AlgoVoi <chopmob@gmail.com>",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": { "import": "./dist/index.js", "types": "./dist/index.d.ts" } },
+  "files": ["dist/**/*"],
+  "scripts": { "build": "tsc" },
+  "dependencies": { "canonicalize": "^3.0.0" },
+  "devDependencies": { "typescript": "^5.4.0", "@types/node": "^20.0.0" }
+}
