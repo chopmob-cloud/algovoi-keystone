@@ -9,6 +9,11 @@ import rfc8785
 from algovoi_retention_chain.rfc9421 import verify_signed_chain_link, SignedChainLinkResult
 from algovoi_retention_chain.chain import retention_chain_ref
 
+pytest.importorskip(
+    "algovoi_rfc9421_signer",
+    reason="optional RFC 9421 signer not installed; signing-vector tests skipped",
+)
+
 VECTORS_FILE = pathlib.Path(__file__).parent.parent.parent / "vectors" / "retention-chain-rfc9421-v1.json"
 
 SEED   = "9d61b19deffd5a60ba844af492ec2cc44449c5697b326919703bac031cae3d55"
