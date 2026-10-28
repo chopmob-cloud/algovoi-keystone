@@ -1,0 +1,7 @@
+{ "name": "@algovoi/keystone-vc", "version": "0.1.0",
+  "description": "Emit an AlgoVoi keystone decision as a W3C Verifiable Credential (DM 2.0) with recomputable executionRef (Apache-2.0). Byte-identical to algovoi-keystone-vc (PyPI).",
+  "license": "Apache-2.0", "author": "AlgoVoi <chopmob@gmail.com>", "type": "module",
+  "main": "./dist/index.js", "types": "./dist/index.d.ts", "files": ["dist","LICENSE","NOTICE","README.md"],
+  "keywords": ["w3c","verifiable-credentials","vc","did","execution_ref","jcs","rfc8785","algovoi"], "engines": { "node": ">=18" },
+  "dependencies": { "canonicalize": "^3.0.0" }, "devDependencies": { "typescript": "^5.4.0", "@types/node": "^20.0.0" },
+  "scripts": { "build": "tsc" } }

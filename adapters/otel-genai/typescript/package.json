@@ -1,0 +1,16 @@
+{
+  "name": "@algovoi/otel-genai",
+  "version": "0.1.0",
+  "description": "Map an AlgoVoi keystone decision to OpenTelemetry gen_ai.agent.* attributes with a recomputable execution_ref under algovoi.keystone.* (Apache-2.0). Byte-identical to algovoi-otel-genai (PyPI).",
+  "license": "Apache-2.0",
+  "author": "AlgoVoi <chopmob@gmail.com>",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": ["dist", "LICENSE", "NOTICE", "README.md"],
+  "keywords": ["opentelemetry", "otel", "gen-ai", "agent", "execution_ref", "jcs", "rfc8785", "algovoi"],
+  "engines": { "node": ">=18" },
+  "dependencies": { "canonicalize": "^3.0.0" },
+  "devDependencies": { "typescript": "^5.4.0", "@types/node": "^20.0.0" },
+  "scripts": { "build": "tsc" }
+}

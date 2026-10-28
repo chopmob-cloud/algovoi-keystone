@@ -131,13 +131,63 @@ meta = keystone_trace_metadata(
 verify_trace_execution_ref(meta)   # True — recomputed, not trusted
 ```
 
-## Integrations
+## Adapters
 
-This repository is the SDK, the chain and the plugins. The adapters that carry a keystone
-`execution_ref` into other standards — OpenTelemetry `gen_ai.*`, CloudEvents, W3C Verifiable
-Credentials and MCP — live in
-[`chopmob-cloud/AlgoVoi-Keystone-Adapters`](https://github.com/chopmob-cloud/AlgoVoi-Keystone-Adapters).
-They are Apache-2.0 too, and each one recomputes the ref locally rather than trusting the issuer.
+Standards adapters carry a keystone decision into a foreign format, so the evidence survives the
+journey into another ecosystem. Each ships a Python package and a TypeScript twin that produce the
+same `execution_ref` byte for byte.
+
+| Directory | Package | Carries the decision as |
+|---|---|---|
+| [`adapters/cloudevents`](adapters/cloudevents) | `algovoi-cloudevents` / `@algovoi/cloudevents` | a CloudEvents 1.0 event (`execution_ref` is the event `id`; refs in `data`) |
+| [`adapters/keystone-mcp`](adapters/keystone-mcp) | `algovoi-keystone-mcp` / `@algovoi/keystone-mcp` | MCP tools so any MCP client recomputes and checks an `execution_ref` offline |
+| [`adapters/keystone-vc`](adapters/keystone-vc) | `algovoi-keystone-vc` / `@algovoi/keystone-vc` | a W3C Verifiable Credential (DM 2.0) with `execution_ref` as `credentialSubject.id` |
+| [`adapters/otel-genai`](adapters/otel-genai) | `algovoi-otel-genai` / `@algovoi/otel-genai` | OpenTelemetry attributes, with keystone refs under the vendor namespace `algovoi.keystone.*` |
+
+Vendor-specific values always live under AlgoVoi-owned identifiers, never inside a namespace
+governed by another standards body.
+
+## Plugins
+
+Plugins stamp a keystone decision onto the trace metadata an agent framework already collects, so
+the evidence travels with the run. They are duck-typed — no framework import — and depend only on
+`algovoi-substrate` and `rfc8785`.
+
+| Plugin | Stamps onto |
+|---|---|
+| [`plugins/algovoi-keystone-langchain`](plugins/algovoi-keystone-langchain) | LangChain callback handler config and run metadata |
+| [`plugins/algovoi-keystone-crewai`](plugins/algovoi-keystone-crewai) | CrewAI step and task metadata |
+| [`plugins/algovoi-keystone-autogen`](plugins/algovoi-keystone-autogen) | AutoGen message metadata |
+| [`plugins/algovoi-keystone-adk`](plugins/algovoi-keystone-adk) | Google ADK agent state updates and before-agent callbacks |
+
+```python
+from algovoi_keystone_langchain import keystone_trace_metadata, verify_trace_execution_ref
+
+meta = keystone_trace_metadata(
+    decision_ref="dec_01", action_type="transfer", scope="acct_42",
+    outcome="ALLOW", executed_at_ms=1700000000000,
+)
+verify_trace_execution_ref(meta)   # True — recomputed, not trusted
+```
+
+### Not open, not in this repository
+
+The `*-journey` packages (`a2a-journey`, `autogen-journey`, `crewai-journey`,
+`langgraph-journey`) are **commercial, bundle-only**. `crewai-journey` carries no licence field at
+all in its metadata — it is commercial by intent and must not be treated as open. They bind a
+whole multi-agent run into one `journey_ref`, the orchestrator capability, rather than a single
+step.
+
+## One guarantee, everywhere
+
+Every package here — chain stage, adapter, plugin — recomputes rather than trusts. A missing,
+malformed or tampered payload fails closed, and an `execution_ref` copied from a different span
+does not authenticate another. Test it:
+
+```
+pip install pytest
+pytest packages plugins adapters      # 266 cases, including the tamper negatives
+```
 
 Documentation: https://docs.algovoi.co.uk/keystone-sdk
 

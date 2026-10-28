@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "algovoi-keystone-vc"
+version = "0.1.0"
+description = "Emit an AlgoVoi keystone decision as a W3C Verifiable Credential (Data Model 2.0) with a recomputable executionRef subject id (Apache-2.0)"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "AlgoVoi", email = "chopmob@gmail.com" }]
+keywords = ["w3c", "verifiable-credentials", "vc", "did", "agent", "agentic-payments", "execution_ref", "jcs", "rfc8785", "algovoi"]
+requires-python = ">=3.10"
+dependencies = ["algovoi-substrate>=0.4.0", "rfc8785>=0.1.2"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["algovoi_keystone_vc*"]
