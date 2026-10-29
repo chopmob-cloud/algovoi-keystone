@@ -21,7 +21,8 @@ pip install algovoi-keystone-control
 ALGV_ADMIN_TOKEN=<your-token> algv-keystone
 ```
 
-The panel starts on `https://0.0.0.0:8077`. Open it in a browser and accept the self-signed certificate, or point your browser at a trusted cert with `ALGV_TLS_CERT`.
+The panel listens on `0.0.0.0:8077` by default. Open **`https://127.0.0.1:8077`** in a browser and
+accept the self-signed certificate, or point it at a trusted cert with `ALGV_TLS_CERT`.
 
 ### Environment variables
 
