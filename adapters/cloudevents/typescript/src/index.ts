@@ -15,6 +15,21 @@ export const TYPE_PREFIX = 'co.algovoi.keystone' as const;
 
 export function executionRef(decisionRef: string, actionType: string, scope: string,
                              outcome: string, executedAtMs: number): string {
+  // canonicalize() DROPS keys whose value is `undefined`, so an absent binding field used to
+  // produce a digest over a reduced payload — and a verifier comparing that digest to an equally
+  // reduced claim returned true for a document that never carried the field. Validate first.
+  const fields: Array<[string, unknown]> = [
+    ['decision_ref', decisionRef], ['action_type', actionType],
+    ['scope', scope], ['outcome', outcome],
+  ];
+  for (const [name, value] of fields) {
+    if (typeof value !== 'string' || value.length === 0) {
+      throw new Error(`execution_ref: ${name} must be a non-empty string`);
+    }
+  }
+  if (typeof executedAtMs !== 'number' || !Number.isFinite(executedAtMs)) {
+    throw new Error('execution_ref: executed_at_ms must be a finite number');
+  }
   const s = canonicalize({ decision_ref: decisionRef, action_type: actionType, scope,
                            outcome, executed_at_ms: Math.trunc(executedAtMs) });
   if (s === undefined) throw new Error('not JCS-canonicalisable');
@@ -60,9 +75,11 @@ export function toCloudEvent(o: ToCloudEventOpts): Record<string, unknown> {
 
 export function verifyCloudEventExecutionRef(event: Record<string, unknown>): boolean {
   try {
-    const d = event.data as Record<string, unknown>;
+    const d = event?.data as Record<string, unknown> | undefined;
+    if (!d || typeof d !== 'object') return false;
+    if (typeof d.execution_ref !== 'string') return false;
     const r = executionRef(d.decision_ref as string, d.action_type as string, d.scope as string,
-                           d.outcome as string, Number(d.executed_at_ms));
+                           d.outcome as string, d.executed_at_ms as number);
     return r === d.execution_ref;
   } catch { return false; }
 }

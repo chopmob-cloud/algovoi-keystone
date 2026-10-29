@@ -13,6 +13,21 @@ export const SHA256_PREFIX = 'sha256:' as const;
 
 export function executionRef(decisionRef: string, actionType: string, scope: string,
                              outcome: string, executedAtMs: number): string {
+  // canonicalize() DROPS keys whose value is `undefined`, so an absent binding field used to
+  // produce a digest over a reduced payload — and a verifier comparing that digest to an equally
+  // reduced claim returned true for a document that never carried the field. Validate first.
+  const fields: Array<[string, unknown]> = [
+    ['decision_ref', decisionRef], ['action_type', actionType],
+    ['scope', scope], ['outcome', outcome],
+  ];
+  for (const [name, value] of fields) {
+    if (typeof value !== 'string' || value.length === 0) {
+      throw new Error(`execution_ref: ${name} must be a non-empty string`);
+    }
+  }
+  if (typeof executedAtMs !== 'number' || !Number.isFinite(executedAtMs)) {
+    throw new Error('execution_ref: executed_at_ms must be a finite number');
+  }
   const s = canonicalize({ decision_ref: decisionRef, action_type: actionType, scope,
                            outcome, executed_at_ms: Math.trunc(executedAtMs) });
   if (s === undefined) throw new Error('not JCS-canonicalisable');
@@ -25,6 +40,9 @@ export function verifyExecutionRef(decisionRef: string, actionType: string, scop
                                    outcome: string, executedAtMs: number,
                                    claimedExecutionRef: string): VerifyResult {
   try {
+    if (typeof claimedExecutionRef !== 'string' || claimedExecutionRef.length === 0) {
+      return { ok: false, computed: null, claimed: String(claimedExecutionRef) };
+    }
     const computed = executionRef(decisionRef, actionType, scope, outcome, executedAtMs);
     return { ok: computed === claimedExecutionRef, computed, claimed: claimedExecutionRef };
   } catch {

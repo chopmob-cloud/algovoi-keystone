@@ -14,6 +14,21 @@ export const CREDENTIAL_TYPE = 'KeystoneExecutionCredential' as const;
 
 export function executionRef(decisionRef: string, actionType: string, scope: string,
                              outcome: string, executedAtMs: number): string {
+  // canonicalize() DROPS keys whose value is `undefined`, so an absent binding field used to
+  // produce a digest over a reduced payload — and a verifier comparing that digest to an equally
+  // reduced claim returned true for a document that never carried the field. Validate first.
+  const fields: Array<[string, unknown]> = [
+    ['decision_ref', decisionRef], ['action_type', actionType],
+    ['scope', scope], ['outcome', outcome],
+  ];
+  for (const [name, value] of fields) {
+    if (typeof value !== 'string' || value.length === 0) {
+      throw new Error(`execution_ref: ${name} must be a non-empty string`);
+    }
+  }
+  if (typeof executedAtMs !== 'number' || !Number.isFinite(executedAtMs)) {
+    throw new Error('execution_ref: executed_at_ms must be a finite number');
+  }
   const s = canonicalize({ decision_ref: decisionRef, action_type: actionType, scope,
                            outcome, executed_at_ms: Math.trunc(executedAtMs) });
   if (s === undefined) throw new Error('not JCS-canonicalisable');
@@ -58,9 +73,11 @@ export function toVerifiableCredential(o: ToVcOpts): Record<string, unknown> {
 
 export function verifyVcExecutionRef(vc: Record<string, unknown>): boolean {
   try {
-    const s = vc.credentialSubject as Record<string, unknown>;
+    const s = vc?.credentialSubject as Record<string, unknown> | undefined;
+    if (!s || typeof s !== 'object') return false;
+    if (typeof s.executionRef !== 'string' || typeof s.id !== 'string') return false;
     const r = executionRef(s.decisionRef as string, s.actionType as string, s.scope as string,
-                           s.outcome as string, Number(s.executedAtMs));
+                           s.outcome as string, s.executedAtMs as number);
     return r === s.executionRef && r === s.id;
   } catch { return false; }
 }

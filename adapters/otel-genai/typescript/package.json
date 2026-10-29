@@ -7,10 +7,34 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "files": ["dist", "LICENSE", "NOTICE", "README.md"],
-  "keywords": ["opentelemetry", "otel", "gen-ai", "agent", "execution_ref", "jcs", "rfc8785", "algovoi"],
-  "engines": { "node": ">=18" },
-  "dependencies": { "canonicalize": "^3.0.0" },
-  "devDependencies": { "typescript": "^5.4.0", "@types/node": "^20.0.0" },
-  "scripts": { "build": "tsc" }
+  "files": [
+    "dist",
+    "LICENSE",
+    "NOTICE",
+    "README.md"
+  ],
+  "keywords": [
+    "opentelemetry",
+    "otel",
+    "gen-ai",
+    "agent",
+    "execution_ref",
+    "jcs",
+    "rfc8785",
+    "algovoi"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "canonicalize": "^3.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "@types/node": "^20.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "node --test tests/verify.test.mjs"
+  }
 }

@@ -4,7 +4,12 @@ import json
 import pytest
 import rfc8785
 
-from algovoi_retention_chain import retention_chain_ref, verify_chain_link, verify_chain_sequence
+from algovoi_retention_chain import (
+    retention_chain_ref,
+    retention_chain_ref_linked,
+    verify_chain_link,
+    verify_chain_sequence,
+)
 
 ISSUER = "algovoi:test"
 
@@ -185,16 +190,26 @@ def test_verify_chain_link_tampered_ref():
 
 # --- verify_chain_sequence ---
 
-def _build_chain(receipts: list[str], issuer: str) -> list[dict]:
+def _build_chain(receipts: list[str], issuer: str, linked: bool = True) -> list[dict]:
     records = []
+    prev_chain_ref = ""
     for i, receipt_hash in enumerate(receipts):
         prev = receipts[i - 1] if i > 0 else ""
-        ref = retention_chain_ref(
-            prev_receipt_hash=prev,
-            receipt_hash=receipt_hash,
-            chain_seq=i,
-            issuer_id=issuer,
-        )
+        if linked:
+            ref = retention_chain_ref_linked(
+                prev_receipt_hash=prev,
+                receipt_hash=receipt_hash,
+                chain_seq=i,
+                issuer_id=issuer,
+                prev_chain_ref=prev_chain_ref,
+            )
+        else:
+            ref = retention_chain_ref(
+                prev_receipt_hash=prev,
+                receipt_hash=receipt_hash,
+                chain_seq=i,
+                issuer_id=issuer,
+            )
         records.append({
             "chain_ref": ref,
             "prev_receipt_hash": prev,
@@ -202,6 +217,8 @@ def _build_chain(receipts: list[str], issuer: str) -> list[dict]:
             "chain_seq": i,
             "issuer_id": issuer,
         })
+        if linked:
+            prev_chain_ref = ref
     return records
 
 
@@ -221,8 +238,9 @@ def test_verify_chain_sequence_detects_truncation_with_pins():
     assert verify_chain_sequence(chain[:3]) is True                      # unpinned: blind (documented)
     assert verify_chain_sequence(chain[:3], expected_length=4) is False  # length pin catches it
     assert verify_chain_sequence(chain[:3], expected_head=head) is False # head pin catches it
-    # head/interior slice: drop the genesis -> require_genesis rejects it
-    assert verify_chain_sequence(chain[1:]) is True                      # unpinned: blind
+    # head/interior slice: dropping the genesis now breaks linkage itself, so it is
+    # rejected even with no pins — v1 had to be told about it (require_genesis)
+    assert verify_chain_sequence(chain[1:]) is False                      # linkage catches it
     assert verify_chain_sequence(chain[1:], require_genesis=True) is False
     # empty is only valid when a zero-length chain is explicitly anchored
     assert verify_chain_sequence([], expected_length=0) is True

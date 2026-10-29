@@ -17,8 +17,9 @@ and standard SHA-256, with no AlgoVoi software in their trust base.
 
 from __future__ import annotations
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
+import copy
 import hashlib
 import time
 from collections import namedtuple
@@ -204,13 +205,20 @@ class Engine:
         # recorded and judged.
         event_ref = event.ref
         stage = event.stage
+        # A single mutable Event was previously handed to every behaviour, so an
+        # earlier action could rewrite the fields a later rule inspects (or set
+        # `stage`, which silently un-matched later stage-scoped behaviours). Each
+        # behaviour now evaluates against its own copy of a pristine snapshot, so
+        # one behaviour's mutations cannot change what the next one sees.
+        pristine = Event(stage, copy.deepcopy(dict(event)))
         fired = []
         for b in self.behaviours:
-            if not _matches(b.on, event):
+            ev = Event(pristine.stage, copy.deepcopy(dict(pristine)))
+            if not _matches(b.on, ev):
                 continue
-            verdict = _verdict_of(b.rule, event)
+            verdict = _verdict_of(b.rule, ev)
             executed_at_ms = self._clock()
-            action_outcome = b.action(event, verdict) if b.action is not None else None
+            action_outcome = b.action(ev, verdict) if b.action is not None else None
             record = {
                 "decision_ref": self.decision_ref,
                 "behaviour": b.name,
@@ -224,9 +232,11 @@ class Engine:
                 record["action_outcome"] = _jsonable(action_outcome)
             record["behaviour_ref"] = keystone_ref(record)
             self.log.append(record)
-            fired.append(dict(record))
+            # deep copies: a shallow one let an observer mutate nested values
+            # inside the stored record, invalidating it after the fact
+            fired.append(copy.deepcopy(record))
             if self._on_fire is not None:
-                self._on_fire(dict(record))
+                self._on_fire(copy.deepcopy(record))
         return fired
 
     def verdict(self, event):

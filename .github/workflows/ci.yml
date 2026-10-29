@@ -1,0 +1,57 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: test (py${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest "algovoi-substrate>=0.4.0" "rfc8785>=0.1.4"
+      - name: assert the tree under test is what gets imported
+        run: python -c "import algovoi_keystone; print('algovoi_keystone from', algovoi_keystone.__file__)"
+      - name: run the suite
+        # conftest.py pins every project dir ahead of site-packages, so a stale
+        # installed wheel cannot shadow the source (the cause of a false green)
+        run: python -m pytest packages plugins adapters -q --no-header
+      - name: packaging conformance gate
+        run: python tools/conformance.py --root .
+
+  typescript:
+    name: typescript (${{ matrix.adapter }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        adapter: [cloudevents, keystone-mcp, keystone-vc, otel-genai]
+    defaults:
+      run:
+        working-directory: adapters/${{ matrix.adapter }}/typescript
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - run: npm install --no-audit --no-fund
+      - name: build
+        run: npx tsc
+      - name: verify the binding-field bypass is closed
+        run: node --test tests/verify.test.mjs

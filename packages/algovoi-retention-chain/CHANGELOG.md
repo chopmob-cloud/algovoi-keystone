@@ -2,6 +2,26 @@
 
 All notable changes to `algovoi-retention-chain` are documented here.
 
+## [0.4.4] - 2026-10-29
+
+### Security
+
+- **Chain linkage is now required (breaking for legacy chains).** The v1 preimage
+  hashed `{chain_seq, issuer_id, prev_receipt_hash, receipt_hash}` and never the
+  previous record's own `chain_ref`. Adjacency was checked against
+  `prev_receipt_hash` — a *declared* value — so interior records could be rewritten,
+  re-attributed and re-signed consistently while a pinned `expected_head` stayed
+  byte-identical. Only the head record was genuinely pinned.
+- New `retention_chain_ref_linked(..., prev_chain_ref=...)` adds `prev_chain_ref` to
+  the preimage, so each link commits to its predecessor and pinning the head
+  transitively commits to every earlier record. Rewriting any interior record now
+  changes the head.
+- `verify_chain_sequence()` verifies under the linked preimage by default and rejects
+  v1 chains. Pass `allow_legacy_v1=True` to restore the old head-only assurance for
+  existing data. `retention_chain_ref()` remains available for legacy refs.
+- An interior slice is now rejected even with no pins: dropping the genesis breaks
+  linkage itself, where v1 needed `require_genesis` to notice.
+
 ## [0.2.0] - 2026-06-17
 
 ### Added
