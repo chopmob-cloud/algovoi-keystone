@@ -5,18 +5,67 @@ Persistence hardening:
   hand-edited settings and 500 every panel render);
 * corrupt / unreadable / wrong-schema persistence degrades to an empty store
   instead of raising;
-* writes are atomic (mkstemp + os.replace), mode 0o600, directory 0o700,
-  no predictable *.tmp name, no leftover temp files on failure.
+* writes are atomic (mkstemp + os.replace), no predictable *.tmp name, no
+  leftover temp files on failure;
+* the file and its directory are restricted to the owning account. On POSIX that
+  is mode 0o600 / 0o700. On Windows POSIX modes are a silent no-op, so the ACL is
+  restricted explicitly instead — and if that cannot be done the store says so
+  once rather than claiming protection it does not have.
 """
 
 from __future__ import annotations
 
 import json
 import os
+import subprocess
+import sys
 import tempfile
 from typing import Any
 
 _MAX_FILE_BYTES = 8 * 1024 * 1024  # guard against runaway persistence
+
+_WARNED: set[str] = set()
+
+
+def _restrict(path: str, mode: int) -> None:
+    """Restrict a path to the owning account; never raise on a best-effort basis.
+
+    POSIX: chmod(mode). Windows: POSIX modes do not apply, so inheritance is
+    removed and only the current user is granted access. If neither can be
+    applied, warn once with the path so the operator can secure it.
+    """
+    if os.name != "nt":
+        try:
+            os.chmod(path, mode)
+        except OSError:
+            _warn_once(path, "could not set POSIX mode")
+        return
+
+    user = os.environ.get("USERNAME") or os.environ.get("USER")
+    if not user:
+        _warn_once(path, "USERNAME unset")
+        return
+    try:
+        if os.path.isdir(path):
+            args = ["icacls", path, "/inheritance:r", "/grant:r", f"{user}:(OI)(CI)F"]
+        else:
+            args = ["icacls", path, "/inheritance:r", "/grant:r", f"{user}:F"]
+        r = subprocess.run(args, capture_output=True, timeout=15,
+                           creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        if r.returncode != 0:
+            _warn_once(path, "icacls failed")
+    except Exception:
+        _warn_once(path, "icacls unavailable")
+
+
+def _warn_once(path: str, reason: str) -> None:
+    key = f"{reason}:{path}"
+    if key in _WARNED:
+        return
+    _WARNED.add(key)
+    print(f"  WARNING: could not restrict permissions on {path} ({reason}); "
+          f"the settings store may be readable by other local accounts",
+          file=sys.stderr, flush=True)
 
 
 def _dir_of(path: str) -> str:
@@ -45,7 +94,7 @@ def _save_json(path: str, data: dict) -> None:
     try:
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2)
-        os.chmod(tmp, 0o600)
+        _restrict(tmp, 0o600)
         os.replace(tmp, path)
     except BaseException:
         try:
@@ -54,7 +103,7 @@ def _save_json(path: str, data: dict) -> None:
             pass
         raise
     if created:
-        os.chmod(directory, 0o700)
+        _restrict(directory, 0o700)
 
 
 class SettingsStore:
