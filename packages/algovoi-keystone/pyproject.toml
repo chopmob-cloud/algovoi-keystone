@@ -4,25 +4,29 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-keystone"
-version = "0.1.1"
+version = "0.4.0"
 description = "The Keystone SDK umbrella -- one install for the whole bolt-on toolchain (connector builder + agentic behaviour layer) plus the `keystone` command line. Everything reduces to sha256 over RFC 8785 JCS (Apache-2.0)"
 readme = "README.md"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 authors = [{ name = "AlgoVoi", email = "chopmob@gmail.com" }]
 keywords = ["keystone", "sdk", "cli", "bolt-on", "connector", "behaviour", "execution_ref", "jcs", "rfc8785", "agentic-payments", "algovoi"]
 requires-python = ">=3.10"
 dependencies = [
-    "algovoi-keystone-connect>=0.1.0",
-    "algovoi-keystone-agent>=0.1.0",
-    "algovoi-keystone-runtime>=0.1.0",
-    "algovoi-execution-ref>=0.1.0",
+    "algovoi-keystone-connect>=0.4.0",
+    "algovoi-keystone-agent>=0.4.0",
+    "algovoi-keystone-runtime>=0.4.0",
+    "algovoi-execution-ref>=0.4.0",
     "rfc8785>=0.1.4",
 ]
 classifiers = [
-    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Topic :: Software Development :: Libraries",
     "Environment :: Console",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 
 [project.optional-dependencies]
@@ -35,3 +39,8 @@ keystone = "algovoi_keystone.cli:main"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["algovoi_keystone*"]
+
+[project.urls]
+Homepage = "https://www.algovoi.co.uk"
+Repository = "https://github.com/chopmob-cloud/algovoi-keystone"
+Documentation = "https://docs.algovoi.co.uk"

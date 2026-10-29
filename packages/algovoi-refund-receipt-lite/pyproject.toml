@@ -7,15 +7,27 @@ name = "algovoi-refund-receipt-lite"
 version = "0.4.0"
 description = "Open, content-addressed refund references bound into the pinned AlgoVoi substrate (subject_ref + refund result + amount; closes the payment lifecycle after settlement; L1 frozen)"
 readme = "README.md"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 authors = [{ name = "AlgoVoi", email = "chopmob@gmail.com" }]
 keywords = ["jcs", "rfc8785", "refund-receipt", "agentic-payments", "settlement", "algovoi"]
 dependencies = ["algovoi-substrate>=0.4.0"]
 
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
 [project.optional-dependencies]
-dev = ["pytest>=8.0", "build>=1.2", "rfc8785>=0.1.2"]
+dev = ["pytest>=8.0", "build>=1.2", "rfc8785>=0.1.4"]
 
 [project.urls]
+Homepage = "https://www.algovoi.co.uk"
+Repository = "https://github.com/chopmob-cloud/algovoi-keystone"
+Documentation = "https://docs.algovoi.co.uk"
 "Conformance vectors" = "https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors"
 "Commercial Refund Receipt" = "https://docs.algovoi.co.uk/refund-receipt"
 

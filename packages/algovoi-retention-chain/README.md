@@ -14,7 +14,7 @@ access required.
 
 Satisfies transaction-recording and audit-trail obligations under MiCA Art. 68(9),
 DORA Art. 17, and AMLR Art. 77. Normative spec:
-[draft-hopley-x402-retention-chain-07](https://datatracker.ietf.org/doc/draft-hopley-x402-retention-chain-07/)
+[draft-hopley-x402-retention-chain](https://datatracker.ietf.org/doc/draft-hopley-x402-retention-chain/)
 (IETF Independent Submission — latest revision).
 
 ## Install

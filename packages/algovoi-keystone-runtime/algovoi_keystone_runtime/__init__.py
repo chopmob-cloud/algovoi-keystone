@@ -20,7 +20,10 @@ its own fields, and the journal itself is a hash chain over those references.
 This is the open journal. The commercial audit-chain is the same shape with
 durable, post-quantum-signed, append-only storage.
 """
+
 from __future__ import annotations
+
+__version__ = "0.4.0"
 
 import json
 import re

@@ -4,15 +4,23 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-keystone-mcp"
-version = "0.1.0"
+version = "0.4.0"
 description = "Open MCP (Model Context Protocol) server exposing keystone execution_ref verification as tools (Apache-2.0)"
 readme = "README.md"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 authors = [{ name = "AlgoVoi", email = "chopmob@gmail.com" }]
 keywords = ["mcp", "model-context-protocol", "agent", "keystone", "execution_ref", "verifier", "jcs", "rfc8785", "algovoi"]
 requires-python = ">=3.10"
-dependencies = ["algovoi-substrate>=0.4.0", "rfc8785>=0.1.2"]
+dependencies = ["algovoi-substrate>=0.4.0", "rfc8785>=0.1.4"]
 
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
 [project.optional-dependencies]
 server = ["fastmcp>=2.0"]
 
@@ -22,3 +30,8 @@ algovoi-keystone-mcp = "algovoi_keystone_mcp.server:main"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["algovoi_keystone_mcp*"]
+
+[project.urls]
+Homepage = "https://www.algovoi.co.uk"
+Repository = "https://github.com/chopmob-cloud/algovoi-keystone"
+Documentation = "https://docs.algovoi.co.uk"

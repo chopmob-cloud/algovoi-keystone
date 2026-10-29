@@ -8,6 +8,6 @@ from algovoi_journey_ref.journey_ref import (  # noqa: F401
     JourneyRefError, OUTCOMES, SHA256_PREFIX, journey_ref, tamper_detected,
 )
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 __all__ = ["JourneyRefError", "OUTCOMES", "SHA256_PREFIX", "journey_ref",
            "tamper_detected", "__version__"]

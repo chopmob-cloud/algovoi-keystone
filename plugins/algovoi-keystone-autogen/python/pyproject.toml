@@ -4,20 +4,30 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-keystone-autogen"
-version = "0.1.0"
+version = "0.4.1"
 description = "Carry an AlgoVoi keystone decision into an AutoGen conversation: a recomputable execution_ref under algovoi.keystone.*, verifiable offline"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 authors = [{ name = "AlgoVoi", email = "chopmob@gmail.com" }]
 keywords = ["autogen", "agent", "multi-agent", "tracing", "observability", "keystone", "execution_ref", "jcs", "rfc8785", "algovoi"]
-dependencies = ["algovoi-substrate>=0.4.0", "rfc8785>=0.1.2"]
+dependencies = ["algovoi-substrate>=0.4.0", "rfc8785>=0.1.4"]
 
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
 [project.optional-dependencies]
 autogen = ["autogen-core"]
 
 [project.urls]
-Homepage = "https://docs.algovoi.co.uk/keystone"
+Repository = "https://github.com/chopmob-cloud/algovoi-keystone"
+Documentation = "https://docs.algovoi.co.uk"
+Homepage = "https://www.algovoi.co.uk"
 
 [tool.setuptools.packages.find]
 where = ["."]

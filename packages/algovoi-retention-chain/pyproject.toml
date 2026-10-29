@@ -4,10 +4,11 @@ build-backend = "hatchling.build"
 
 [project]
 name = "algovoi-retention-chain"
-version = "0.4.0"
+version = "0.4.3"
 description = "AlgoVoi Retention Chain Substrate — self-verifiable audit chain linking payment receipts without external infrastructure. MiCA Art. 68(9), DORA Art. 17, AMLR Art. 77."
 readme = "README.md"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 authors = [{ name = "AlgoVoi", email = "chopmob@gmail.com" }]
 keywords = [
     "retention-chain", "audit-chain", "payment-receipts",
@@ -15,16 +16,16 @@ keywords = [
     "x402", "mica", "dora", "amlr", "agentic-payments", "compliance"
 ]
 classifiers = [
-    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Office/Business :: Financial",
     "Topic :: Security :: Cryptography",
+    "Programming Language :: Python :: 3.13",
 ]
 requires-python = ">=3.10"
-dependencies = ["rfc8785>=0.1.2"]
+dependencies = ["rfc8785>=0.1.4"]
 
 [project.optional-dependencies]
 rfc9421 = [
@@ -48,9 +49,10 @@ dev = [
 algovoi-retention-chain = "algovoi_retention_chain.service:main"
 
 [project.urls]
-Homepage = "https://docs.algovoi.co.uk/retention-chain-substrate"
-Repository = "https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors"
-Changelog = "https://github.com/chopmob-cloud/algovoi-jcs-conformance-vectors/blob/main/CHANGELOG.md"
+Documentation = "https://docs.algovoi.co.uk"
+Homepage = "https://www.algovoi.co.uk"
+Repository = "https://github.com/chopmob-cloud/algovoi-keystone"
+Changelog = "https://github.com/chopmob-cloud/algovoi-keystone/blob/main/packages/algovoi-retention-chain/CHANGELOG.md"
 
 [tool.hatch.build.targets.wheel]
 packages = ["algovoi_retention_chain"]

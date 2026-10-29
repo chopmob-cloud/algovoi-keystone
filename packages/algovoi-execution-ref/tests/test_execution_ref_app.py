@@ -31,7 +31,11 @@ KW = dict(passport_ref=PASSPORT, mandate_ref=MANDATE, policy_bound_ref=POLICY,
 
 
 def test_version():
-    assert __version__ == "0.1.0"
+    # The module literal must match the manifest, so a version bump cannot go stale.
+    import pathlib, re
+    py = (pathlib.Path(__file__).resolve().parents[1] / "pyproject.toml").read_text(encoding="utf-8")
+    expected = re.search(r'(?m)^version\s*=\s*"([^"]+)"', py).group(1)
+    assert __version__ == expected
 
 
 def test_runs_on_any_substrate_version():

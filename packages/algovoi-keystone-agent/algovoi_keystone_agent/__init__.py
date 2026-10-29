@@ -14,7 +14,10 @@ One primitive underneath everything:
 so any party recomputes any behaviour_ref with a stock RFC 8785 implementation
 and standard SHA-256, with no AlgoVoi software in their trust base.
 """
+
 from __future__ import annotations
+
+__version__ = "0.4.0"
 
 import hashlib
 import time

@@ -4,15 +4,28 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-cloudevents"
-version = "0.1.0"
+version = "0.4.0"
 description = "Emit an AlgoVoi keystone decision as a CloudEvents 1.0 event, with execution_ref as the recomputable content-addressed event identity (Apache-2.0)"
 readme = "README.md"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 authors = [{ name = "AlgoVoi", email = "chopmob@gmail.com" }]
 keywords = ["cloudevents", "cncf", "agent", "agentic-payments", "execution_ref", "jcs", "rfc8785", "algovoi"]
 requires-python = ">=3.10"
-dependencies = ["algovoi-substrate>=0.4.0", "rfc8785>=0.1.2"]
+dependencies = ["algovoi-substrate>=0.4.0", "rfc8785>=0.1.4"]
 
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["algovoi_cloudevents*"]
+
+[project.urls]
+Homepage = "https://www.algovoi.co.uk"
+Repository = "https://github.com/chopmob-cloud/algovoi-keystone"
+Documentation = "https://docs.algovoi.co.uk"

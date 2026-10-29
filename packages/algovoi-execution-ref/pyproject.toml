@@ -4,10 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-execution-ref"
-version = "0.4.0"
+version = "0.4.2"
 description = "AlgoVoi execution_ref -- decision-bound execution evidence bound to the keystone. Proves an executed action is consistent with the decision that authorized it. Runs on any algovoi-substrate version (v0/v1); uses only JCS RFC 8785 canonicalisation."
 readme = "README.md"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
 authors = [
   { name = "AlgoVoi", email = "chopmob@gmail.com" },
 ]
@@ -21,7 +22,6 @@ classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
   "Intended Audience :: Financial and Insurance Industry",
-  "License :: OSI Approved :: Apache Software License",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
@@ -37,6 +37,7 @@ dependencies = [
   "algovoi-substrate>=0.3.0",
 ]
 
+requires-python = ">=3.10"
 [project.optional-dependencies]
 test = ["pytest>=7", "pytest-cov>=4"]
 
@@ -44,10 +45,10 @@ test = ["pytest>=7", "pytest-cov>=4"]
 algovoi-execution-ref = "algovoi_execution_ref.__main__:main"
 
 [project.urls]
-Homepage = "https://api.algovoi.co.uk"
+Homepage = "https://www.algovoi.co.uk"
 Documentation = "https://docs.algovoi.co.uk/execution-ref"
-Repository = "https://github.com/chopmob-cloud/algovoi-execution-ref"
-Issues = "https://github.com/chopmob-cloud/algovoi-execution-ref/issues"
+Repository = "https://github.com/chopmob-cloud/algovoi-keystone"
+Issues = "https://github.com/chopmob-cloud/algovoi-keystone/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]

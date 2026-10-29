@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-journey-ref"
-version = "0.4.0"
+version = "0.4.1"
 description = "Content-addressed journey references for the AlgoVoi substrate: bind a whole multi-agent task (hops + delegations + outcome) into one offline-verifiable ref."
 readme = "README.md"
 license = "Apache-2.0"
@@ -23,8 +23,10 @@ classifiers = [
     "Topic :: Security :: Cryptography",
 ]
 
+requires-python = ">=3.10"
 [project.urls]
-Homepage = "https://algovoi.co.uk"
+Repository = "https://github.com/chopmob-cloud/algovoi-keystone"
+Homepage = "https://www.algovoi.co.uk"
 Documentation = "https://docs.algovoi.co.uk/keystone"
 
 [tool.setuptools.packages.find]
