@@ -7,7 +7,7 @@ from algovoi_recompute_drift.recompute_drift import (  # noqa: F401
     recompute_action_ref,
 )
 
-__version__ = "0.4.1"
+__version__ = "0.5.0"
 
 __all__ = [
     "RecomputeDriftError",

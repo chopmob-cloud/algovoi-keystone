@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-keystone-agent"
-version = "0.4.1"
+version = "0.5.0"
 description = "The agentic behaviour layer for Keystone -- declare rules, behaviours and triggers, deploy them in an Engine, and gate any keystone-connect write; every firing is a content-addressed behaviour_ref (Apache-2.0)"
 readme = "README.md"
 license = "Apache-2.0"

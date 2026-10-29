@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-keystone-vc"
-version = "0.4.1"
+version = "0.5.0"
 description = "Emit an AlgoVoi keystone decision as a W3C Verifiable Credential (Data Model 2.0) with a recomputable executionRef subject id (Apache-2.0)"
 readme = "README.md"
 license = "Apache-2.0"

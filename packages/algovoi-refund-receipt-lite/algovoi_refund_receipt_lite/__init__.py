@@ -8,7 +8,7 @@ from algovoi_refund_receipt_lite.refund_receipt_lite import (  # noqa: F401
     verify,
 )
 
-__version__ = "0.4.1"
+__version__ = "0.5.0"
 
 __all__ = [
     "REFUND_RESULTS",

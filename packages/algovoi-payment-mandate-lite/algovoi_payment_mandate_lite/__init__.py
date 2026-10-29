@@ -7,7 +7,7 @@ from algovoi_payment_mandate_lite.payment_mandate_lite import (  # noqa: F401
     verify,
 )
 
-__version__ = "0.4.1"
+__version__ = "0.5.0"
 
 __all__ = [
     "SHA256_PREFIX",

@@ -7,6 +7,6 @@ from algovoi_otel_genai.adapter import (  # noqa: F401
     OUTCOMES, SHA256_PREFIX, execution_ref, to_gen_ai_attributes, verify_gen_ai_execution_ref,
 )
 
-__version__ = "0.4.1"
+__version__ = "0.5.0"
 __all__ = ["OUTCOMES", "SHA256_PREFIX", "execution_ref", "to_gen_ai_attributes",
            "verify_gen_ai_execution_ref", "__version__"]

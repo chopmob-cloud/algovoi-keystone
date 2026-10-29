@@ -7,6 +7,6 @@ from algovoi_policy_binding.policy_binding import (  # noqa: F401
     policy_ref,
 )
 
-__version__ = "0.4.1"
+__version__ = "0.5.0"
 
 __all__ = ["PolicyBindingError", "SHA256_PREFIX", "policy_bound_ref", "policy_ref", "__version__"]

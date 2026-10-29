@@ -8,7 +8,7 @@ from algovoi_cancellation_receipt_lite.cancellation_receipt_lite import (  # noq
     verify,
 )
 
-__version__ = "0.4.1"
+__version__ = "0.5.0"
 
 __all__ = [
     "REASONS",

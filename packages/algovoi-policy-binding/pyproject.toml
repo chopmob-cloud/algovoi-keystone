@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-policy-binding"
-version = "0.4.1"
+version = "0.5.0"
 description = "Additive policy-snapshot binding for the AlgoVoi substrate (version-provable, rotation-detectable; L1 frozen)"
 readme = "README.md"
 license = "Apache-2.0"

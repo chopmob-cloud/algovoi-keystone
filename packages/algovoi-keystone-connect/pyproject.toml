@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-keystone-connect"
-version = "0.4.0"
+version = "0.5.0"
 description = "Build and test Keystone bolt-ons with almost no boilerplate -- declare a connector in ~12 lines and verify any bolt-on at any stage of the flow offline (keystone toolkit, Apache-2.0)"
 readme = "README.md"
 license = "Apache-2.0"

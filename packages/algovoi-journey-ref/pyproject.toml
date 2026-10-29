@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-journey-ref"
-version = "0.4.2"
+version = "0.5.0"
 description = "Content-addressed journey references for the AlgoVoi substrate: bind a whole multi-agent task (hops + delegations + outcome) into one offline-verifiable ref."
 readme = "README.md"
 license = "Apache-2.0"

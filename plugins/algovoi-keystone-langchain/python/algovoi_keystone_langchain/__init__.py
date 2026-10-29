@@ -22,7 +22,7 @@ from typing import Any, Mapping
 
 from algovoi_substrate import sha256_jcs
 
-__version__ = "0.4.1"
+__version__ = "0.5.0"
 
 SHA256_PREFIX = "sha256:"
 NAMESPACE = "algovoi.keystone"

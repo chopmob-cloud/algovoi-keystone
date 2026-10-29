@@ -14,7 +14,7 @@ command line. Everything still reduces to one primitive:
 
     keystone_ref(payload) == "sha256:" + SHA-256(RFC 8785 JCS(payload))
 """
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 # The connector builder + conformance harness.
 from algovoi_keystone_connect import (  # noqa: F401

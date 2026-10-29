@@ -12,4 +12,4 @@ __all__ = [
     "verify_chain_link",
     "verify_chain_sequence",
 ]
-__version__ = "0.4.5"
+__version__ = "0.5.0"

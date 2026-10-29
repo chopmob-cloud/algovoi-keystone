@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-substrate-guard"
-version = "0.4.1"
+version = "0.5.0"
 description = "Deterministic input-bounds / DoS hardening gate for the AlgoVoi JCS substrate; runs before canonicalization and fails closed on well-formed but resource-hostile payloads with named reject codes; the bounds in force are content-addressed (profile_ref)"
 readme = "README.md"
 license = "Apache-2.0"

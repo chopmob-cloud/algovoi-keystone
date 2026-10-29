@@ -39,7 +39,7 @@ __all__ = [
     "Report",
     "EXECUTION_OUTCOMES",
 ]
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 
 def keystone_ref(payload: Any) -> str:

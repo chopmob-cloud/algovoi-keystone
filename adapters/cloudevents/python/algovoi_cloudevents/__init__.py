@@ -3,6 +3,6 @@ from algovoi_cloudevents.adapter import (  # noqa: F401
     SHA256_PREFIX, SPEC_VERSION, STAGES, TYPE_PREFIX, execution_ref, to_cloudevent,
     verify_cloudevent_execution_ref,
 )
-__version__ = "0.4.1"
+__version__ = "0.5.0"
 __all__ = ["SHA256_PREFIX", "SPEC_VERSION", "STAGES", "TYPE_PREFIX", "execution_ref",
            "to_cloudevent", "verify_cloudevent_execution_ref", "__version__"]

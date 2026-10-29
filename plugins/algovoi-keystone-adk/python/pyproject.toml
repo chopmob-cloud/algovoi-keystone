@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-keystone-adk"
-version = "0.4.1"
+version = "0.5.0"
 description = "Carry an AlgoVoi keystone decision into a Google ADK run: a recomputable execution_ref under algovoi.keystone.*, verifiable offline"
 readme = "README.md"
 requires-python = ">=3.10"

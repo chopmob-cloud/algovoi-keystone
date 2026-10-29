@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-keystone-runtime"
-version = "0.4.0"
+version = "0.5.0"
 description = "Run a Keystone chain and keep the evidence -- gate writes through the behaviour layer and persist every emitted reference (stage, behaviour, execution) to a queryable, tamper-evident SQLite journal that recomputes offline (Apache-2.0)"
 readme = "README.md"
 license = "Apache-2.0"
