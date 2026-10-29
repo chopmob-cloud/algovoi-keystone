@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import warnings
 from typing import Sequence
 
 import rfc8785
@@ -55,6 +56,13 @@ def retention_chain_ref(
     Raises:
         ValueError: on invalid inputs.
     """
+    warnings.warn(
+        "retention_chain_ref (v1) commits to a single record and is not "
+        "interior-rewrite-safe; use retention_chain_ref_linked, which binds each "
+        "link to its predecessor's chain_ref.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     return _chain_ref(
         prev_receipt_hash=prev_receipt_hash,
         receipt_hash=receipt_hash,
