@@ -184,8 +184,22 @@ from algovoi_keystone import connector, rule, trigger, behaviour, Engine, Runtim
 
 keystone_s3 = connector("s3", writes={"put_object": ("put", lambda c: c.kwargs["Bucket"])})
 rt = Runtime(Journal("keystone.db"), decision_ref=decision_ref)
-s3 = rt.bind(keystone_s3(client, decision_ref=decision_ref), behaviours=[behaviours.deny_writes_to("s3", "delete")])
+s3 = rt.bind(keystone_s3(client, decision_ref=decision_ref),
+             behaviours=[behaviours.deny_writes_to("Bucket", ["locked"])])  # deny a locked bucket
 ```
+
+`deny_writes_to` denies a **value**, not a method: it blocks a write whose named field holds one of
+the listed values. To refuse a method outright, bind a behaviour on
+`behaviours.on_write(method="delete_object")` with a rule that returns `BLOCK`:
+
+```python
+no_deletes = behaviour("no-deletes", on=behaviours.on_write(method="delete_object"),
+                       rule=rule("block-deletes", lambda e: "BLOCK"))
+s3 = rt.bind(keystone_s3(client, decision_ref=decision_ref), behaviours=[no_deletes])
+```
+
+The two are different guards. A value denial never fires on a method call that carries no such
+field, so a `delete_object` using `deny_writes_to("s3", "delete")` blocks nothing at all.
 
 A behaviour only fires at the stage it declares. Pair `Engine.guard` with a stage-appropriate
 behaviour — a spend cap triggers at the `decision` stage, not inside a write guard — and check
@@ -263,7 +277,7 @@ does not authenticate another. Test it:
 
 ```
 pip install pytest
-pytest                                # 301 cases, including the tamper negatives
+pytest                                # 300 pass, 1 skipped without the optional RFC 9421 signer
 npm test --prefix adapters/cloudevents/typescript   # and the TypeScript twins
 ```
 
