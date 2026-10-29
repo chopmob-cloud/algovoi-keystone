@@ -1,0 +1,134 @@
+{
+  "schema": "algovoi-keystone-chain/v2",
+  "canon": "jcs-rfc8785-v1",
+  "composition": "cross-party-delegation/v1",
+  "description": "BROKEN: executed scope widens decision scope (max_amount 2000 > 500).",
+  "chain": [
+    {
+      "name": "passport_A",
+      "preimage": {
+        "agent_id": "agent-A",
+        "issuer": "did:algo:issuer",
+        "scope": "payments",
+        "validity_window": "2026-06-01/2026-12-01"
+      }
+    },
+    {
+      "name": "delegation_AB",
+      "preimage": {
+        "delegator_id": "agent-A",
+        "delegate_id": "agent-B",
+        "scope": {
+          "resource": "payments/transfer",
+          "max_amount": 1000,
+          "jurisdictions": [
+            "GB",
+            "US"
+          ]
+        },
+        "not_before_ms": 1716400000000,
+        "not_after_ms": 1716500000000,
+        "prev_delegation_ref": ""
+      }
+    },
+    {
+      "name": "passport_B",
+      "preimage": {
+        "agent_id": "agent-B",
+        "issuer": "did:algo:issuer",
+        "scope": "payments",
+        "validity_window": "2026-06-01/2026-12-01"
+      }
+    },
+    {
+      "name": "policy_B",
+      "preimage": {
+        "policy_id": "aml.transfer",
+        "version": 1,
+        "max_amount": 1000,
+        "deny_jurisdictions": [
+          "XX"
+        ]
+      }
+    },
+    {
+      "name": "policy_bound_B",
+      "preimage": {
+        "policy_ref": "@policy_B",
+        "subject_ref": "sha256:7dc4a2bf62b3c5eabd10fc875ff7fc10f188666f15838c4a51464cc72e80f6ca"
+      }
+    },
+    {
+      "name": "decision_B",
+      "preimage": {
+        "agent_ref": "@passport_B",
+        "authority_ref": "@delegation_AB",
+        "policy_bound_ref": "@policy_bound_B",
+        "verdict": "ALLOW",
+        "scope": {
+          "resource": "payments/transfer/usdc",
+          "max_amount": 500,
+          "jurisdictions": [
+            "GB"
+          ]
+        }
+      }
+    },
+    {
+      "name": "execution_B",
+      "preimage": {
+        "decision_ref": "@decision_B",
+        "action_type": "payment",
+        "scope": {
+          "resource": "payments/transfer/usdc",
+          "max_amount": 2000,
+          "jurisdictions": [
+            "GB"
+          ]
+        },
+        "outcome": "COMMITTED",
+        "executed_at_ms": 1716460800000
+      }
+    },
+    {
+      "name": "trust_query_ref",
+      "preimage": {
+        "subject_refs": [
+          "@passport_A",
+          "@delegation_AB",
+          "@passport_B",
+          "@decision_B",
+          "@execution_B"
+        ],
+        "trust_outcome": "TRUSTED"
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "kind": "field_equals",
+      "a": "delegation_AB.delegator_id",
+      "b": "passport_A.agent_id"
+    },
+    {
+      "kind": "field_equals",
+      "a": "delegation_AB.delegate_id",
+      "b": "passport_B.agent_id"
+    },
+    {
+      "kind": "scope_subset",
+      "inner": "decision_B",
+      "outer": "delegation_AB"
+    },
+    {
+      "kind": "scope_subset",
+      "inner": "execution_B",
+      "outer": "decision_B"
+    },
+    {
+      "kind": "time_within",
+      "time": "execution_B.executed_at_ms",
+      "window": "delegation_AB"
+    }
+  ]
+}

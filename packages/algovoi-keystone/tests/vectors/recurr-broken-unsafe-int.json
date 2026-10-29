@@ -1,0 +1,16 @@
+{
+  "schema": "algovoi-keystone-chain/v2",
+  "canon": "jcs-rfc8785-v1",
+  "composition": "recurring-standing-authority/v1",
+  "description": "BROKEN (JS-safe-integer guard): the execution amount_minor is 9007199254740993 (2^53 + 1), above Number.MAX_SAFE_INTEGER. Python keeps it exact while JavaScript's JSON.parse rounds it to 9007199254740992, so the two verifiers would otherwise disagree on the same chain. recurring_cap bounds amounts/caps/timestamps to the I-JSON safe range in BOTH implementations, so both reject an unsafe integer identically (fail-closed) rather than diverging. Real minor-unit amounts and ms timestamps are far below 2^53.",
+  "chain": [
+    {"name": "passport", "preimage": {"agent_id": "agent-A", "issuer": "did:algo:issuer", "scope": "payments", "validity_window": "2026-06-01/2027-12-01"}},
+    {"name": "mandate", "preimage": {"mandate_id": "m-778", "agent_id": "agent-A", "scope": "payments/recurring"}},
+    {"name": "policy_bound", "preimage": {"policy_id": "aml.recurring", "version": 1, "max_amount": 1000, "deny_jurisdictions": ["XX"]}},
+    {"name": "standing_authority", "preimage": {"merchant_ref": "merchant:acme-subs", "chain": "base", "customer_wallet_address": "0x1111111111111111111111111111111111111111", "cap_amount_minor": 60000, "per_cycle_amount_minor": 500, "cap_period_seconds": 2592000, "asset": "USDC", "decimals": 6, "expires_at": "2027-06-01T00:00:00Z", "canon_version": "recurr-jcs-v1"}},
+    {"name": "execution", "preimage": {"authority_ref": "@standing_authority", "policy_ref": "@policy_bound", "amount_minor": 9007199254740993, "cycle_index": 3, "executed_at_ms": 1789000000000}}
+  ],
+  "assertions": [
+    {"kind": "recurring_cap", "authority": "standing_authority", "policy": "policy_bound", "executions": ["execution"]}
+  ]
+}

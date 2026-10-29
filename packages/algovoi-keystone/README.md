@@ -22,6 +22,7 @@ engine = Engine([behaviours.cap_charges(500)], decision_ref=decision_ref)
 keystone new <name> --kind connector|behaviour|stage   scaffold a publishable bolt-on
 keystone test [path]                                    run the bolt-on's test battery
 keystone validate <records.json>                        verify emitted refs offline
+keystone verify <chain.json> [--expect NAME=REF]        prove a whole chain composes
 keystone doctor                                         check the environment
 keystone info                                           show installed pieces + the primitive
 keystone publish [path]                                 build the dist and check it (mirror-first)
@@ -39,6 +40,38 @@ cd redis-stream/python && keystone test        # green: recompute, decision-boun
 connector or a `behaviour_ref` from the agent layer: it recomputes the reference from the recorded
 fields and reports any that do not match, so a third party checks your evidence with a stock RFC 8785
 implementation and standard SHA-256.
+
+## Chain verification
+
+`keystone validate` checks records one at a time; `keystone verify` proves the composition — every
+link recomputes in order, every `@name` reference resolves to an earlier link, and the assertions the
+chain declares actually hold:
+
+```
+keystone verify chain.json
+keystone verify chain.json --expect standing_authority=sha256:...   # pin a ref you trust
+```
+
+Six assertion kinds: `scope_subset`, `field_equals`, `time_within`, `not_revoked`, `journey`, and
+`recurring_cap` (Recurr Tier-2 recurring standing authorities: per-cycle cap, period cap, policy
+bound, authority window). Exit codes: `0` composes, `1` a well-formed chain that does not prove what
+it claims, `2` bad input or invocation.
+
+```python
+from algovoi_keystone import verify_chain
+
+result = verify_chain(chain)                                    # recompute + assertions
+result = verify_chain(chain, expect={"standing_authority": ref})  # ... and pin what you trust
+result.ok, result.failed_assertion, result.capped
+```
+
+Pinning matters because a recompute only proves internal consistency: a chain whose cap was widened
+still recomputes. Pin the link to the reference you hold out of band (the recurr `authority_ref` the
+customer signed, the passport ref you recorded) and a widened authority fails at `ref_pinned`.
+
+Canonicalisation comes from the independent `rfc8785` library, so verification needs no AlgoVoi
+software. When `algovoi-substrate` is installed as well, its canonicaliser is cross-checked
+byte-for-byte against `rfc8785` and a divergence fails closed.
 
 Install from the Keystone control panel (the integrity path, from the AlgoVoi index); new releases
 land on the AlgoVoi index first, with PyPI mirrors following. Built on the AlgoVoi substrate

@@ -1,0 +1,82 @@
+{
+  "schema": "algovoi-keystone-chain/v1",
+  "canon": "jcs-rfc8785-v1",
+  "description": "BROKEN demo: execution outcome changed COMMITTED -> REVERSED, but the declared execution_ref and trust_query_ref are the original COMMITTED values. The verifier recomputes and catches the divergence at execution_ref, and the cap that binds it.",
+  "chain": [
+    {
+      "name": "passport_ref",
+      "preimage": {
+        "agent_id": "agent-001",
+        "issuer": "did:algo:issuer",
+        "scope": "payments",
+        "validity_window": "2026-06-21/2026-09-21"
+      },
+      "ref": "sha256:b3594e33998af01bd1ad208172c5c1ac586daa8c75781379f034d97e50b1a9be"
+    },
+    {
+      "name": "mandate_ref",
+      "preimage": {
+        "payer": "0x00000000000000000000000000000000DEADBEEF",
+        "cap": "1000",
+        "period": "monthly",
+        "revocation_state": "active"
+      },
+      "ref": "sha256:a4f8cb5ee09b29478ac1cc2f468d66e16d3d25f7a229a31d22ad521e11d04d35"
+    },
+    {
+      "name": "policy_ref",
+      "preimage": {
+        "policy_id": "aml.transfer",
+        "version": 1,
+        "max_amount": 1000,
+        "deny_jurisdictions": [
+          "XX"
+        ]
+      },
+      "ref": "sha256:acc943b05fa8e8096e5b313288bc4f919cc2661f167c833770509a53049afa1c"
+    },
+    {
+      "name": "policy_bound_ref",
+      "preimage": {
+        "policy_ref": "@policy_ref",
+        "subject_ref": "sha256:7dc4a2bf62b3c5eabd10fc875ff7fc10f188666f15838c4a51464cc72e80f6ca"
+      },
+      "ref": "sha256:aaee2091799f376ee8cac802ea4920feaa4eca52950488a3e047ff82e6959a21"
+    },
+    {
+      "name": "decision_ref",
+      "preimage": {
+        "agent_ref": "@passport_ref",
+        "mandate_ref": "@mandate_ref",
+        "policy_bound_ref": "@policy_bound_ref",
+        "verdict": "ALLOW"
+      },
+      "ref": "sha256:2a444c629892f44fde1bd004aba9be01dd6cc7fe251eecdd545b82dca9f0bf97"
+    },
+    {
+      "name": "execution_ref",
+      "preimage": {
+        "decision_ref": "@decision_ref",
+        "action_type": "payment",
+        "scope": "bilateral",
+        "outcome": "REVERSED",
+        "executed_at_ms": 1716460800000
+      },
+      "ref": "sha256:f6e2bfc15b085ed51c4c972de81d1c6b00f4e55b272e2aa12e56bb7c521fc65a"
+    },
+    {
+      "name": "trust_query_ref",
+      "preimage": {
+        "subject_refs": [
+          "@passport_ref",
+          "@mandate_ref",
+          "@policy_bound_ref",
+          "@decision_ref",
+          "@execution_ref"
+        ],
+        "trust_outcome": "TRUSTED"
+      },
+      "ref": "sha256:18fb601a08c71eb6bed11e1c117f33bdc0ada6d635ea9bb9cca15e8410ce7ebd"
+    }
+  ]
+}

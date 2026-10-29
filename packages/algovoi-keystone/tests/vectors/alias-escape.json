@@ -1,0 +1,59 @@
+{
+  "set": "alias_escape_v1",
+  "description": "The '@@' escape. A leading '@' marks an alias to an earlier link; a leading '@@' is the literal string '@...' and never resolves. Without the escape, domain data that legitimately begins with '@' either fails the chain or, when it happens to match a link name, is silently replaced by that link's reference so the hashed preimage is not what the author wrote. Each expected reference below is recomputed by both the Python and Node verifiers.",
+  "cases": [
+    {
+      "name": "escaped-literal-collides-with-link-name",
+      "why": "The dangerous case. '@@acmecorp' sits next to a link actually named 'acmecorp'. The escape must win: the preimage keeps the literal '@acmecorp' and binds nothing.",
+      "chain": [
+        { "name": "acmecorp", "preimage": { "id": "did:web:acme.example" } },
+        { "name": "post", "preimage": { "author_handle": "@@acmecorp", "body": "hello" } }
+      ],
+      "expect": {
+        "ok": true,
+        "refs": {
+          "acmecorp": "sha256:238ffde522c66871769c2bb796852917e880df59e93e410b9b92a4b437548f3c",
+          "post": "sha256:00c242237153ee62a0b63ebe68d1fc45a59d8e910633251184a250d218d210fd"
+        },
+        "binds": { "acmecorp": [], "post": [] }
+      }
+    },
+    {
+      "name": "alias-resolves-and-binds",
+      "why": "The same shape with a single '@' is a real alias: it resolves to the earlier link's reference and is reported as a binding. Its reference MUST differ from the escaped case.",
+      "chain": [
+        { "name": "acmecorp", "preimage": { "id": "did:web:acme.example" } },
+        { "name": "post", "preimage": { "author": "@acmecorp", "body": "hello" } }
+      ],
+      "expect": {
+        "ok": true,
+        "refs": {
+          "acmecorp": "sha256:238ffde522c66871769c2bb796852917e880df59e93e410b9b92a4b437548f3c",
+          "post": "sha256:2c40d9f03c7cac247f33987582638375f7ded38fc777928ba180dccff71793de"
+        },
+        "binds": { "acmecorp": [], "post": ["acmecorp"] }
+      }
+    },
+    {
+      "name": "at-not-leading-is-untouched",
+      "why": "Only a leading '@' is a marker. An address or identifier containing '@' elsewhere was never ambiguous and must be unaffected.",
+      "chain": [{ "name": "contact", "preimage": { "email": "support@shop.example" } }],
+      "expect": {
+        "ok": true,
+        "refs": {
+          "contact": "sha256:150e4b2b0a666604e6e761cc5d0aa45ec2781d9e3283978e110a471c0da5ff71"
+        },
+        "binds": { "contact": [] }
+      }
+    },
+    {
+      "name": "unknown-alias-rejected",
+      "why": "Fail closed. An unescaped '@name' with no earlier link of that name is an error, not a literal. Silently treating it as text would let a broken binding pass.",
+      "chain": [
+        { "name": "m", "preimage": { "id": "x" } },
+        { "name": "post", "preimage": { "handle": "@nosuchlink" } }
+      ],
+      "expect": { "error_contains": "references @nosuchlink" }
+    }
+  ]
+}
