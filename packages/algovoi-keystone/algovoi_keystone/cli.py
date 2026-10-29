@@ -5,6 +5,7 @@ One entry point over the bolt-on toolchain:
     keystone new <name> --kind connector|behaviour|stage   scaffold a publishable bolt-on
     keystone test [path]                                    run the bolt-on's test battery
     keystone validate <records.json>                        verify emitted refs offline
+    keystone verify <chain.json> [--expect NAME=REF]        prove a whole chain composes
     keystone doctor                                         check the environment
     keystone info                                           show installed pieces + the primitive
     keystone journal <db> [--show]                          verify (and list) a runtime journal
@@ -359,6 +360,85 @@ def cmd_journal(args):
 
 
 # --------------------------------------------------------------------------- #
+# verify -- prove a whole chain composes (online in nothing, offline in everything)
+# --------------------------------------------------------------------------- #
+
+def _parse_expect(items):
+    """`--expect name=sha256:...` -> {name: ref}. Malformed pin is a usage error, not a pass."""
+    from algovoi_keystone.verify import KeystoneError
+    pins = {}
+    for item in items or []:
+        if "=" not in item:
+            raise KeystoneError("--expect takes NAME=sha256:<64 hex>, got %r" % item)
+        name, _, ref = item.partition("=")
+        if not name.strip():
+            raise KeystoneError("--expect needs a link name before '='")
+        pins[name.strip()] = ref.strip()
+    return pins
+
+
+def cmd_verify(args):
+    from algovoi_keystone.verify import KeystoneError, verify_chain
+    try:
+        with open(args.file, "rb") as source:
+            raw = source.read(8 * 1024 * 1024 + 1)
+        if len(raw) > 8 * 1024 * 1024:
+            raise ValueError("chain exceeds the 8 MiB input limit")
+        chain = json.loads(raw.decode("utf-8"), object_pairs_hook=_unique_object)
+    except FileNotFoundError:
+        _bad("no such file: %s" % args.file); return 2
+    except Exception as exc:
+        _bad("cannot read %s: %r" % (args.file, exc)); return 2
+
+    try:
+        pins = _parse_expect(getattr(args, "expect", None))
+        result = verify_chain(chain, expect=pins)
+    except KeystoneError as exc:
+        _bad("malformed keystone chain: %s" % exc); return 2
+
+    print("keystone chain: " + "  ->  ".join(l.name for l in result.links))
+    print("-" * 60)
+    for l in result.links:
+        print("  %s%s" % ("OK  " if l.ok else "BAD ", l.name))
+        binds = "  binds %s" % ", ".join(l.binds) if l.binds else ""
+        print("      %s%s" % (l.computed, binds))
+        if not l.ok:
+            print("      ^ %s" % l.detail)
+    if result.assertions:
+        print("assertions:")
+        for a in result.assertions:
+            print("  %s%s%s" % ("OK  " if a.ok else "BAD ", a.kind,
+                                "" if a.ok else ": %s" % a.detail))
+    print("-" * 60)
+
+    if result.ok:
+        n = len(result.links)
+        extra = ""
+        if result.assertions:
+            kinds = sorted({a.kind for a in result.assertions})
+            extra = " + " + ", ".join(k.replace("_", "-") for k in kinds) + " hold"
+        print("KEYSTONE VALID: %d/%d links compose, recompute byte-for-byte, "
+              "no issuer contact%s." % (n, n, extra))
+        if result.capped:
+            print("  capped: %s is one verdict over [%s] in order."
+                  % (result.cap, ", ".join(result.cap_covers)))
+        return 0
+
+    broken = result.first_broken
+    if broken is not None:
+        print("KEYSTONE BROKEN at %s: %s." % (broken.name, broken.detail or "reference mismatch"))
+        print("  every link that binds it is therefore not provable from these bytes.")
+    else:
+        failed = result.failed_assertion
+        kind = failed.kind if failed is not None else "assertion"
+        detail = failed.detail if failed is not None else "chain did not verify"
+        print("KEYSTONE BROKEN: %s failed -- %s." % (kind, detail))
+        print("  the chain recomputes, but it does not prove what it claims "
+              "(scope widened, out of window, revoked, or not the artefact you pinned).")
+    return 1
+
+
+# --------------------------------------------------------------------------- #
 # test / publish
 # --------------------------------------------------------------------------- #
 
@@ -404,6 +484,14 @@ def build_parser():
     v = sub.add_parser("validate", help="verify emitted refs offline")
     v.add_argument("file")
     v.set_defaults(fn=cmd_validate)
+
+    vc = sub.add_parser("verify", help="prove a whole chain composes (links + assertions)")
+    vc.add_argument("file")
+    vc.add_argument("--expect", action="append", default=[],
+                    metavar="NAME=REF",
+                    help="pin a link to the reference you independently trust "
+                         "(e.g. standing_authority=sha256:... from the signed authority); repeatable")
+    vc.set_defaults(fn=cmd_verify)
 
     jn = sub.add_parser("journal", help="verify (and list) a runtime journal")
     jn.add_argument("db")

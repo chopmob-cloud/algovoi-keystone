@@ -21,7 +21,7 @@ and the control panel that governs a running deployment. All 28 Python packages 
 | [`algovoi-keystone-connect`](packages/algovoi-keystone-connect) | build a data-plane connector from a declarative spec, and test any bolt-on at any stage of the chain offline |
 | [`algovoi-keystone-agent`](packages/algovoi-keystone-agent) | the agentic behaviour layer: rules, triggers and behaviours that gate any write before it commits, each firing a content-addressed `behaviour_ref` |
 | [`algovoi-keystone-runtime`](packages/algovoi-keystone-runtime) | run a chain and keep the evidence in a queryable, tamper-evident journal that recomputes offline |
-| [`algovoi-keystone`](packages/algovoi-keystone) | the umbrella: one install for the whole toolchain plus the `keystone` CLI |
+| [`algovoi-keystone`](packages/algovoi-keystone) | the umbrella: one install for the whole toolchain plus the `keystone` CLI, including offline chain verification (`keystone verify`) |
 
 ### The chain
 
@@ -201,6 +201,7 @@ pip install algovoi-keystone
 keystone new redis-stream --kind connector   # scaffold a bolt-on, green out of the box
 keystone test                                 # recompute, decision-bound, tamper-evident
 keystone validate records.json                # verify any emitted ref offline
+keystone verify chain.json                    # prove a whole chain composes, end to end
 keystone journal run.db                        # verify a run's evidence journal
 ```
 
@@ -243,6 +244,42 @@ field, so a `delete_object` using `deny_writes_to("s3", "delete")` blocks nothin
 A behaviour only fires at the stage it declares. Pair `Engine.guard` with a stage-appropriate
 behaviour — a spend cap triggers at the `decision` stage, not inside a write guard — and check
 coverage with `check_guard_coverage` rather than assuming a bound behaviour is an active one.
+
+## Verifying a whole chain
+
+`keystone validate` checks records one at a time. `keystone verify` proves the composition: every
+link recomputes in order, every `@name` reference resolves to an earlier link, and the semantic
+assertions the chain declares actually hold.
+
+```
+keystone verify chain.json
+keystone verify chain.json --expect standing_authority=sha256:...   # pin a ref you trust
+```
+
+Six assertion kinds are checked: `scope_subset`, `field_equals`, `time_within`, `not_revoked`,
+`journey`, and `recurring_cap` — the last for Recurr Tier-2 recurring standing authorities
+(per-cycle cap, period cap, policy bound and authority window, fail-closed, read from the
+descriptor that is the `standing_authority` link verbatim).
+
+Exit codes are deliberate: `0` composes, `1` is a well-formed chain that does not prove what it
+claims (a real negative), `2` is a problem with the input or the invocation.
+
+`--expect` closes the gap a recompute cannot: a chain is internally consistent even when a cap was
+widened, because nothing ties its links to the artefact the customer actually signed. Pin the link
+to the reference you hold out of band and a widened authority fails at `ref_pinned`.
+
+The same check is importable:
+
+```python
+from algovoi_keystone import verify_chain
+
+result = verify_chain(chain, expect={"standing_authority": authority_ref})
+assert result.ok, result.failed_assertion
+```
+
+Canonicalisation comes from the independent `rfc8785` library, so verifying needs no AlgoVoi
+software in the trust base; when the substrate is installed as well the two canonicalisers are
+cross-checked byte-for-byte and a divergence fails closed.
 
 ## The one guarantee
 

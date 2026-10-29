@@ -14,7 +14,7 @@ command line. Everything still reduces to one primitive:
 
     keystone_ref(payload) == "sha256:" + SHA-256(RFC 8785 JCS(payload))
 """
-__version__ = "0.5.0"
+__version__ = "0.6.0"
 
 # The connector builder + conformance harness.
 from algovoi_keystone_connect import (  # noqa: F401
@@ -33,6 +33,13 @@ from algovoi_keystone_agent import library as behaviours  # noqa: F401
 # The runtime: run a chain and keep the evidence in a tamper-evident journal.
 from algovoi_keystone_runtime import Journal, Runtime, verify_record  # noqa: F401
 
+# Chain verification: prove a whole chain composes (link refs + semantic assertions),
+# offline, with optional pinning against refs you independently trust.
+from algovoi_keystone.verify import (  # noqa: F401
+    AssertionResult, ChainResult, KeystoneError, LinkResult, scope_contains,
+    verify_chain,
+)
+
 __all__ = [
     "__version__",
     # primitive + connectors
@@ -44,4 +51,7 @@ __all__ = [
     "behaviours",
     # runtime + journal
     "Runtime", "Journal", "verify_record",
+    # chain verification
+    "verify_chain", "ChainResult", "LinkResult", "AssertionResult",
+    "scope_contains", "KeystoneError",
 ]

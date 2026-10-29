@@ -1,0 +1,18 @@
+{
+  "schema": "algovoi-keystone-chain/v2",
+  "canon": "jcs-rfc8785-v1",
+  "composition": "recurring-standing-authority/v1",
+  "description": "BROKEN: the customer revoked the standing authority at 1788000000000; the cycle then executed at 1789000000000 (after revocation). recurring_cap passes (amounts and window are fine) but not_revoked fails: the cycle acted under a revoked authority.",
+  "chain": [
+    {"name": "passport", "preimage": {"agent_id": "agent-A", "issuer": "did:algo:issuer", "scope": "payments", "validity_window": "2026-06-01/2027-12-01"}},
+    {"name": "mandate", "preimage": {"mandate_id": "m-778", "agent_id": "agent-A", "scope": "payments/recurring"}},
+    {"name": "policy_bound", "preimage": {"policy_id": "aml.recurring", "version": 1, "max_amount": 1000, "deny_jurisdictions": ["XX"]}},
+    {"name": "standing_authority", "preimage": {"merchant_ref": "merchant:acme-subs", "chain": "base", "customer_wallet_address": "0x1111111111111111111111111111111111111111", "cap_amount_minor": 60000, "per_cycle_amount_minor": 500, "cap_period_seconds": 2592000, "asset": "USDC", "decimals": 6, "expires_at": "2027-06-01T00:00:00Z", "canon_version": "recurr-jcs-v1"}},
+    {"name": "revocation", "preimage": {"revokes": "@standing_authority", "revoked_at_ms": 1788000000000}},
+    {"name": "execution", "preimage": {"authority_ref": "@standing_authority", "policy_ref": "@policy_bound", "amount_minor": 500, "cycle_index": 5, "executed_at_ms": 1789000000000}}
+  ],
+  "assertions": [
+    {"kind": "recurring_cap", "authority": "standing_authority", "policy": "policy_bound", "executions": ["execution"]},
+    {"kind": "not_revoked", "action": "execution", "revocation": "revocation", "time": "execution.executed_at_ms"}
+  ]
+}

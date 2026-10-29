@@ -1,0 +1,206 @@
+{
+  "schema": "algovoi-keystone-chain/v2",
+  "canon": "jcs-rfc8785-v1",
+  "composition": "multi-agent-journey/v1",
+  "description": "The journey_ref silently omits a hop (execution_C is dropped from the aggregate). BROKEN by the journey assertion: a journey must cover every hop; you cannot present a partial task as complete.",
+  "chain": [
+    {
+      "name": "passport_A",
+      "preimage": {
+        "agent_id": "agent-A",
+        "issuer": "did:algo:issuer",
+        "scope": "payments",
+        "validity_window": "2026-06-01/2026-12-01"
+      }
+    },
+    {
+      "name": "delegation_AB",
+      "preimage": {
+        "delegator_id": "agent-A",
+        "delegate_id": "agent-B",
+        "scope": {
+          "resource": "payments/transfer",
+          "max_amount": 1000,
+          "jurisdictions": [
+            "GB",
+            "US"
+          ]
+        },
+        "not_before_ms": 1716400000000,
+        "not_after_ms": 1716500000000,
+        "prev_delegation_ref": ""
+      }
+    },
+    {
+      "name": "passport_B",
+      "preimage": {
+        "agent_id": "agent-B",
+        "issuer": "did:algo:issuer",
+        "scope": "payments",
+        "validity_window": "2026-06-01/2026-12-01"
+      }
+    },
+    {
+      "name": "policy_bound_B",
+      "preimage": {
+        "policy_ref": "sha256:aa",
+        "subject_ref": "@passport_B"
+      }
+    },
+    {
+      "name": "decision_B",
+      "preimage": {
+        "agent_ref": "@passport_B",
+        "authority_ref": "@delegation_AB",
+        "policy_bound_ref": "@policy_bound_B",
+        "verdict": "ALLOW",
+        "scope": {
+          "resource": "payments/transfer/usdc",
+          "max_amount": 800,
+          "jurisdictions": [
+            "GB"
+          ]
+        }
+      }
+    },
+    {
+      "name": "execution_B",
+      "preimage": {
+        "decision_ref": "@decision_B",
+        "action_type": "payment",
+        "scope": {
+          "resource": "payments/transfer/usdc",
+          "max_amount": 800,
+          "jurisdictions": [
+            "GB"
+          ]
+        },
+        "outcome": "COMMITTED",
+        "executed_at_ms": 1716450000000
+      }
+    },
+    {
+      "name": "delegation_BC",
+      "preimage": {
+        "delegator_id": "agent-B",
+        "delegate_id": "agent-C",
+        "scope": {
+          "resource": "payments/transfer/usdc",
+          "max_amount": 500,
+          "jurisdictions": [
+            "GB"
+          ]
+        },
+        "not_before_ms": 1716400000000,
+        "not_after_ms": 1716500000000,
+        "prev_delegation_ref": "@delegation_AB"
+      }
+    },
+    {
+      "name": "passport_C",
+      "preimage": {
+        "agent_id": "agent-C",
+        "issuer": "did:algo:issuer",
+        "scope": "payments",
+        "validity_window": "2026-06-01/2026-12-01"
+      }
+    },
+    {
+      "name": "policy_bound_C",
+      "preimage": {
+        "policy_ref": "sha256:bb",
+        "subject_ref": "@passport_C"
+      }
+    },
+    {
+      "name": "decision_C",
+      "preimage": {
+        "agent_ref": "@passport_C",
+        "authority_ref": "@delegation_BC",
+        "policy_bound_ref": "@policy_bound_C",
+        "verdict": "ALLOW",
+        "scope": {
+          "resource": "payments/transfer/usdc",
+          "max_amount": 250,
+          "jurisdictions": [
+            "GB"
+          ]
+        }
+      }
+    },
+    {
+      "name": "execution_C",
+      "preimage": {
+        "decision_ref": "@decision_C",
+        "action_type": "payment",
+        "scope": {
+          "resource": "payments/transfer/usdc",
+          "max_amount": 250,
+          "jurisdictions": [
+            "GB"
+          ]
+        },
+        "outcome": "COMMITTED",
+        "executed_at_ms": 1716460000000
+      }
+    },
+    {
+      "name": "journey_ref",
+      "preimage": {
+        "hops": [
+          "@execution_B"
+        ],
+        "delegations": [
+          "@delegation_AB",
+          "@delegation_BC"
+        ],
+        "journey_outcome": "COMPLETE"
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "kind": "field_equals",
+      "a": "delegation_AB.delegator_id",
+      "b": "passport_A.agent_id"
+    },
+    {
+      "kind": "field_equals",
+      "a": "delegation_BC.delegator_id",
+      "b": "delegation_AB.delegate_id"
+    },
+    {
+      "kind": "scope_subset",
+      "inner": "decision_B",
+      "outer": "delegation_AB"
+    },
+    {
+      "kind": "scope_subset",
+      "inner": "execution_B",
+      "outer": "decision_B"
+    },
+    {
+      "kind": "scope_subset",
+      "inner": "delegation_BC",
+      "outer": "delegation_AB"
+    },
+    {
+      "kind": "scope_subset",
+      "inner": "decision_C",
+      "outer": "delegation_BC"
+    },
+    {
+      "kind": "scope_subset",
+      "inner": "execution_C",
+      "outer": "decision_C"
+    },
+    {
+      "kind": "journey",
+      "ref": "journey_ref",
+      "hops": [
+        "execution_B",
+        "execution_C"
+      ]
+    }
+  ]
+}
