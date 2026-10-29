@@ -9,7 +9,7 @@ from algovoi_compliance_gate_lite.compliance_gate_lite import (  # noqa: F401
     verify,
 )
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 __all__ = [
     "SHA256_PREFIX",

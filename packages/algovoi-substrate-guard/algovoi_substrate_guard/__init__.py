@@ -8,7 +8,7 @@ from algovoi_substrate_guard.guard import (  # noqa: F401
     profile_ref,
 )
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 __all__ = [
     "DEFAULT_PROFILE",

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-spend-guardrail-lite"
-version = "0.4.0"
+version = "0.4.1"
 description = "Open, content-addressed pre-payment ALLOW/DENY decisions bound to the pinned AlgoVoi substrate (agent + mandate + policy; L1 frozen)"
 readme = "README.md"
 license = "Apache-2.0"

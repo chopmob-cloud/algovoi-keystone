@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-cloudevents"
-version = "0.4.0"
+version = "0.4.1"
 description = "Emit an AlgoVoi keystone decision as a CloudEvents 1.0 event, with execution_ref as the recomputable content-addressed event identity (Apache-2.0)"
 readme = "README.md"
 license = "Apache-2.0"

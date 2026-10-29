@@ -3,6 +3,6 @@ from algovoi_keystone_vc.adapter import (  # noqa: F401
     CREDENTIAL_TYPE, KEYSTONE_CONTEXT, SHA256_PREFIX, VC_CONTEXT, execution_ref,
     to_verifiable_credential, verify_vc_execution_ref,
 )
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 __all__ = ["CREDENTIAL_TYPE", "KEYSTONE_CONTEXT", "SHA256_PREFIX", "VC_CONTEXT", "execution_ref",
            "to_verifiable_credential", "verify_vc_execution_ref", "__version__"]

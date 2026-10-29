@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "algovoi-retention-chain"
-version = "0.4.4"
+version = "0.4.5"
 description = "AlgoVoi Retention Chain Substrate — self-verifiable audit chain linking payment receipts without external infrastructure. MiCA Art. 68(9), DORA Art. 17, AMLR Art. 77."
 readme = "README.md"
 license = "Apache-2.0"

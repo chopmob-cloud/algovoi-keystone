@@ -8,7 +8,7 @@ from algovoi_composite_trust_query_lite.composite_trust_query_lite import (  # n
     verify,
 )
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 __all__ = [
     "TRUST_OUTCOMES",

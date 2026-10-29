@@ -8,7 +8,7 @@ from algovoi_delegation_ref.delegation_ref import (  # noqa: F401
     verify_chain,
 )
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 __all__ = [
     "DelegationRefError",

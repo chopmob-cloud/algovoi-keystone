@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-cancellation-receipt-lite"
-version = "0.4.0"
+version = "0.4.1"
 description = "Open, content-addressed cancellation references bound into the pinned AlgoVoi substrate (mandate_ref + cancellation reason; closes the spend-authority lifecycle; L1 frozen)"
 readme = "README.md"
 license = "Apache-2.0"

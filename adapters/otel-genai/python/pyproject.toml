@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-otel-genai"
-version = "0.4.0"
+version = "0.4.1"
 description = "Map an AlgoVoi keystone decision to OpenTelemetry gen_ai.agent.* attributes, carrying execution_ref as an open recomputable cross-producer key (Apache-2.0)"
 readme = "README.md"
 license = "Apache-2.0"
