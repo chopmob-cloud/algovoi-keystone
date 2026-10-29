@@ -12,7 +12,12 @@ Checks per package (PEP 621 / PEP 639 aware):
   requires-python present
 """
 from __future__ import annotations
-import argparse, json, pathlib, re, sys, tomllib
+import argparse, json, pathlib, re, sys
+
+try:
+    import tomllib  # Python 3.11+
+except ModuleNotFoundError:  # 3.10: the packages still declare requires-python >= 3.10
+    import tomli as tomllib
 
 HOME = "https://www.algovoi.co.uk"
 REPO = "https://github.com/chopmob-cloud/algovoi-keystone"
