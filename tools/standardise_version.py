@@ -11,7 +11,8 @@ import pathlib, re, sys, tomllib
 
 TARGET = "0.4.0"
 PATTERNS = ["packages/*/pyproject.toml", "plugins/*/python/pyproject.toml",
-            "adapters/*/python/pyproject.toml"]
+            "adapters/*/python/pyproject.toml",
+            "control/pyproject.toml"]
 FIRST_PARTY = ("algovoi-execution-ref", "algovoi-keystone-agent",
                "algovoi-keystone-connect", "algovoi-keystone-runtime")
 

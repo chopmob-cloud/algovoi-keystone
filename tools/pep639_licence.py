@@ -11,7 +11,8 @@ from __future__ import annotations
 import pathlib, re, sys, tomllib
 
 PATTERNS = ["packages/*/pyproject.toml", "plugins/*/python/pyproject.toml",
-            "adapters/*/python/pyproject.toml"]
+            "adapters/*/python/pyproject.toml",
+            "control/pyproject.toml"]
 LICENCE_CLASSIFIER = "License :: OSI Approved :: Apache Software License"
 
 root = pathlib.Path(".").resolve()

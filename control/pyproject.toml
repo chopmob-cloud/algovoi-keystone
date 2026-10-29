@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "algovoi-keystone-control"
+version = "0.4.0"
+description = "Open keystone settings control panel — discovers installed keystone steps via their algovoi.keystone.steps entry points, binds each to its canonical ref, and tunes policy without changing the hash"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Libraries",
+]
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "python-multipart>=0.0.9",
+    "cryptography>=42.0",
+    "algovoi-substrate>=0.4.0",
+]
+
+[project.scripts]
+algv-keystone = "algovoi_keystone_control.cli:main"
+keystone-verify = "algovoi_keystone_control.verify:main"
+
+[project.urls]
+Homepage = "https://www.algovoi.co.uk"
+Repository = "https://github.com/chopmob-cloud/algovoi-keystone"
+Documentation = "https://docs.algovoi.co.uk"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["algovoi_keystone_control*"]

@@ -18,7 +18,8 @@ PY_CLASSIFIERS = [
     "Programming Language :: Python :: 3.13",
 ]
 LICENCE_CLASSIFIER = "License :: OSI Approved :: Apache Software License"
-ROOTS = ["packages/*/pyproject.toml", "plugins/*/python/pyproject.toml", "adapters/*/python/pyproject.toml"]
+ROOTS = ["packages/*/pyproject.toml", "plugins/*/python/pyproject.toml", "adapters/*/python/pyproject.toml",
+            "control/pyproject.toml"]
 
 
 def project_section_span(text: str) -> tuple[int, int]:

@@ -4,7 +4,8 @@ import pathlib, re, sys, tomllib
 
 HOME = "https://www.algovoi.co.uk"
 PATTERNS = ["packages/*/pyproject.toml", "plugins/*/python/pyproject.toml",
-            "adapters/*/python/pyproject.toml"]
+            "adapters/*/python/pyproject.toml",
+            "control/pyproject.toml"]
 apply = "--apply" in sys.argv
 root = pathlib.Path(".").resolve()
 changed, problems = [], []

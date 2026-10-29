@@ -6,10 +6,11 @@ SHA-256). Where L1 gives you one primitive, `ref = "sha256:" + SHA-256(RFC 8785 
 gives you the toolchain to build, govern, run and verify agent actions against it, with no AlgoVoi
 software in your trust base.
 
-This repository is the open (Apache-2.0) Keystone SDK. It holds the framework itself — four
-pure-Python packages plus the `keystone` command line — and every stage of the chain as an
-installable package. All 19 are pure Python: `py3-none-any` wheels and sdists, no compiled
-extensions, no Cython.
+This repository is the open (Apache-2.0) Keystone estate, in one home. It holds the framework itself
+— four packages plus the `keystone` command line — every stage of the chain as an installable
+package, the four agent-framework plugins, the four standards adapters (Python and TypeScript twins),
+and the control panel that governs a running deployment. All 28 Python packages are pure Python:
+`py3-none-any` wheels and sdists, no compiled extensions, no Cython.
 
 ## Packages
 
@@ -61,19 +62,25 @@ separate package, `algovoi-keystone-control` (Apache-2.0). It discovers which st
 binds each one to its canonical reference, and tunes policy settings — without ever changing how a
 reference is computed.
 
+You sign in before anything else. The panel sets a session cookie, requires same-site origin on
+every state-changing request, rate-limits repeat attempts, and sends a CSRF token with each form —
+it is a control surface for a payment chain, so it does not open on a GET.
+
+![Control panel sign-in](docs/screenshots/control-panel-login.png)
+
+Behind that gate is the dashboard, and it is driven entirely by what is installed. There is no
+hardcoded list of packages in it: install a step and it appears, with its ref, its posture, its
+version and its editable settings. Remove one and it shows as *not installed* rather than vanishing
+from the chain.
+
 ![Control panel dashboard](docs/screenshots/control-panel-dashboard.png)
-
-The panel is driven entirely by what is installed. There is no hardcoded list of packages in it:
-install a step and it appears, with its ref, its posture, its version and its editable settings.
-
-![Step settings editor](docs/screenshots/control-panel-settings.png)
 
 Each step exposes its settings as JSON, split into the application-level gate configuration and the
 keystone substrate variables. The panel states its own rule plainly: *settings tune the verdict,
 never the hash* — so policy can change at runtime without invalidating any evidence already
 emitted.
 
-![Sign-in](docs/screenshots/control-panel-login.png)
+![Step settings editor](docs/screenshots/control-panel-settings.png)
 
 ### How a step declares itself
 
@@ -135,6 +142,8 @@ assurance floor or disable anonymous agents, while the `ref` for everything alre
 recomputes. Governing the process never rewrites the record.
 
 ### Running it
+
+The panel's source lives in [`control/`](control), alongside the rest of the estate.
 
 ```
 pip install algovoi-keystone-control
@@ -254,7 +263,7 @@ does not authenticate another. Test it:
 
 ```
 pip install pytest
-pytest packages plugins adapters      # 281 cases, including the tamper negatives
+pytest                                # 301 cases, including the tamper negatives
 npm test --prefix adapters/cloudevents/typescript   # and the TypeScript twins
 ```
 

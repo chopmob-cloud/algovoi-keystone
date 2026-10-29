@@ -29,6 +29,7 @@ ROOTS = [
     ("packages", "packages/*/pyproject.toml"),
     ("plugins", "plugins/*/python/pyproject.toml"),
     ("adapters", "adapters/*/python/pyproject.toml"),
+    ("control", "control/pyproject.toml"),
 ]
 
 def load(p):
