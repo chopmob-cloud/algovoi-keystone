@@ -154,6 +154,45 @@ It serves on `https://127.0.0.1:8077` and generates a self-signed certificate on
 `ALGV_ADMIN_TOKEN` to fix the sign-in secret, and `ALGV_PIN_GATE=1` to require a signed licence key
 before settings can be edited.
 
+## Optional: Secure Hub as a side addon
+
+[`algovoi-secure-hub`](https://github.com/chopmob-cloud/algovoi-secure-hub) is a separate,
+self-hosted service that can sit beside this estate. It is not a dependency: Keystone runs
+without it, and nothing in the hub writes Keystone evidence or the journal.
+
+It earns its keep when several AlgoVoi services need one operator view — issuer trust,
+live posture, policy and attestor coordination — with an HMAC-chained audit of every
+topology change.
+
+Keystone appears in the hub two ways:
+
+1. **The control panel registers as a bridged addon.** Addon registration takes a scoped,
+   name-bound token; the hub refuses the admin bearer for `type="addon"`:
+
+   ```bash
+   curl -sX POST http://localhost:8094/v1/services \
+     -H "Authorization: Bearer $AHUB_REGISTRATION_TOKEN" -H 'Content-Type: application/json' \
+     -d '{"name":"keystone-control","type":"addon",
+         "base_url":"http://keystone-control:8077","health_path":"/health"}'
+   ```
+
+2. **The hub publishes the Keystone attestor key** for other services to pin, at
+   `GET /v1/keystone-attestor`, and surfaces it in `/v1/posture` under `keystone`.
+
+The hub's policy bridge uses the same construction as
+[`algovoi-policy-binding`](packages/algovoi-policy-binding):
+
+```
+policy_ref       = "sha256:" + SHA-256(JCS(policy_document))
+policy_bound_ref = "sha256:" + SHA-256(JCS({subject_ref, policy_ref}))
+```
+
+so a ref sealed on either side recomputes identically on the other. Both the hub and this
+estate validate `sha256:` + 64 hex at the boundary.
+
+Screenshots, issuer-key generation and the full bolt-in contract live in the
+[secure-hub README](https://github.com/chopmob-cloud/algovoi-secure-hub#readme).
+
 ## One install, one command
 
 ```
