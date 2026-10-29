@@ -26,8 +26,14 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install pytest "algovoi-substrate>=0.4.0" "rfc8785>=0.1.4"
+      - name: pin the source tree ahead of site-packages
+        # Nothing from this repo is installed, so the tree under test has to be
+        # on sys.path. conftest.py does that for pytest, but the suite also runs
+        # subprocesses (`python -m algovoi_*`, and scaffolded bolt-ons running
+        # their own pytest) which never see conftest - so export it to the job.
+        run: echo "PYTHONPATH=$(python tools/source_roots.py)" >> "$GITHUB_ENV"
       - name: assert the tree under test is what gets imported
-        run: python -c "import algovoi_keystone; print('algovoi_keystone from', algovoi_keystone.__file__)"
+        run: python tools/source_roots.py --verify
       - name: run the suite
         # conftest.py pins every project dir ahead of site-packages, so a stale
         # installed wheel cannot shadow the source (the cause of a false green)
