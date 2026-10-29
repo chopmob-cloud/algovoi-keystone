@@ -54,6 +54,97 @@ Plus one package that is not a stage:
 |---|---|
 | [`algovoi-recompute-drift`](packages/algovoi-recompute-drift) | offline drift detection — recompute a recorded `action_ref` and assert it still matches (`recompute_action_ref`, `drift_detected`, `assert_no_drift`) |
 
+## Control panel and the alias framework
+
+This repository is the L2 layer. The **control plane** that governs a running L2 deployment is a
+separate package, `algovoi-keystone-control` (Apache-2.0). It discovers which steps are installed,
+binds each one to its canonical reference, and tunes policy settings — without ever changing how a
+reference is computed.
+
+![Control panel dashboard](docs/screenshots/control-panel-dashboard.png)
+
+The panel is driven entirely by what is installed. There is no hardcoded list of packages in it:
+install a step and it appears, with its ref, its posture, its version and its editable settings.
+
+![Step settings editor](docs/screenshots/control-panel-settings.png)
+
+Each step exposes its settings as JSON, split into the application-level gate configuration and the
+keystone substrate variables. The panel states its own rule plainly: *settings tune the verdict,
+never the hash* — so policy can change at runtime without invalidating any evidence already
+emitted.
+
+![Sign-in](docs/screenshots/control-panel-login.png)
+
+### How a step declares itself
+
+Every chain package ships a `keystone.py` exposing one function through the
+`algovoi.keystone.steps` entry point:
+
+```python
+def keystone_step() -> dict:
+    return {
+        "package": "algovoi-agent-passport-lite",
+        "step": "passport",
+        "ref": "passport_ref",
+        "alias_of": "passport_ref",
+        "order": 1,
+        "posture": "Identity + assurance gate",
+        "default": {"__keystone": {...}, "require_did": True, "min_assurance": "MEDIUM"},
+    }
+```
+
+That is the whole contract. The package declares its own place in the chain, and the panel
+discovers it by reading installed entry points — so a third-party bolt-on is governable the moment
+it is installed, with no catalogue edit and no central registry.
+
+### What "alias" means here
+
+Three distinct aliases do three distinct jobs:
+
+| Alias | Where it lives | What it guarantees |
+|---|---|---|
+| `alias_of` | the package's `keystone.py` | the package's reference **is** the canonical slot reference; it does not invent a parallel namespace |
+| edition aliases | the panel's catalogue (`packages: [...]`) | the open edition and the commercial edition occupy the *same* step and ref, so a chain can swap editions without changing a single hash |
+| parameter aliases | runtime and journal (`expect_head` / `expect_count`) | a pin can be named the way the caller already names it, so verification is not skipped over a spelling mismatch |
+
+The important property is convergence. A step slot has exactly one canonical reference name, and
+everything that fills that slot — open edition, commercial edition, or a vendor bolt-on — aliases
+onto it. Two rules keep it honest:
+
+- **No shadowing.** A bolt-on whose `step` or `ref` is already taken is skipped, so a package
+  cannot hijack an existing slot by simply declaring itself into it.
+- **Untrusted descriptors are validated.** Entry points are third-party code, so step and ref names
+  are matched against a strict pattern, `order` must be integral, package names must be well formed,
+  and the number of accepted vendor steps is capped.
+
+### How the alias layer carries L2 into L3
+
+| Layer | What it is | What the alias layer does for it |
+|---|---|---|
+| **L1** | the substrate primitive: `ref = "sha256:" + SHA-256(RFC 8785 JCS(payload))` | nothing — an alias never changes the preimage, so a ref computed anywhere recomputes identically here |
+| **L2** | this SDK: build the chain, gate the write, run it, keep the journal | each stage knows its own `step`, `ref` and `order`, so the chain can be assembled and verified without a central schema |
+| **L3** | the control plane: discover, bind, configure, audit | the panel governs a deployment it has never seen, because every artefact declares its own slot |
+
+The consequence is that L3 never needs a copy of L2's catalogue. It reads the installed packages,
+checks that each step resolves to a canonical ref, and presents it. Add a stage to a deployment and
+governance extends to it automatically; remove one and the gap is visible as *not installed*
+rather than silently absent from the chain.
+
+That is also why settings and evidence are kept apart: L3 can tighten a threshold, change an
+assurance floor or disable anonymous agents, while the `ref` for everything already recorded still
+recomputes. Governing the process never rewrites the record.
+
+### Running it
+
+```
+pip install algovoi-keystone-control
+algv-keystone
+```
+
+It serves on `https://127.0.0.1:8077` and generates a self-signed certificate on first run. Set
+`ALGV_ADMIN_TOKEN` to fix the sign-in secret, and `ALGV_PIN_GATE=1` to require a signed licence key
+before settings can be edited.
+
 ## One install, one command
 
 ```
@@ -147,29 +238,6 @@ same `execution_ref` byte for byte.
 Vendor-specific values always live under AlgoVoi-owned identifiers, never inside a namespace
 governed by another standards body.
 
-## Plugins
-
-Plugins stamp a keystone decision onto the trace metadata an agent framework already collects, so
-the evidence travels with the run. They are duck-typed — no framework import — and depend only on
-`algovoi-substrate` and `rfc8785`.
-
-| Plugin | Stamps onto |
-|---|---|
-| [`plugins/algovoi-keystone-langchain`](plugins/algovoi-keystone-langchain) | LangChain callback handler config and run metadata |
-| [`plugins/algovoi-keystone-crewai`](plugins/algovoi-keystone-crewai) | CrewAI step and task metadata |
-| [`plugins/algovoi-keystone-autogen`](plugins/algovoi-keystone-autogen) | AutoGen message metadata |
-| [`plugins/algovoi-keystone-adk`](plugins/algovoi-keystone-adk) | Google ADK agent state updates and before-agent callbacks |
-
-```python
-from algovoi_keystone_langchain import keystone_trace_metadata, verify_trace_execution_ref
-
-meta = keystone_trace_metadata(
-    decision_ref="dec_01", action_type="transfer", scope="acct_42",
-    outcome="ALLOW", executed_at_ms=1700000000000,
-)
-verify_trace_execution_ref(meta)   # True — recomputed, not trusted
-```
-
 ### Not open, not in this repository
 
 The `*-journey` packages (`a2a-journey`, `autogen-journey`, `crewai-journey`,
@@ -186,7 +254,8 @@ does not authenticate another. Test it:
 
 ```
 pip install pytest
-pytest packages plugins adapters      # 266 cases, including the tamper negatives
+pytest packages plugins adapters      # 281 cases, including the tamper negatives
+npm test --prefix adapters/cloudevents/typescript   # and the TypeScript twins
 ```
 
 Documentation: https://docs.algovoi.co.uk/keystone-sdk
