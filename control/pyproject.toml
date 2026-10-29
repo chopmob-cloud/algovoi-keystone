@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "algovoi-keystone-control"
-version = "0.4.2"
+version = "0.4.3"
 description = "Open keystone settings control panel — discovers installed keystone steps via their algovoi.keystone.steps entry points, binds each to its canonical ref, and tunes policy without changing the hash"
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
