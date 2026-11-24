@@ -1,6 +1,5 @@
 # algovoi-keystone
 
-
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 
 The **Keystone** is the L2 bolt-on layer on top of the L1 [AlgoVoi
