@@ -1,5 +1,8 @@
 # algovoi-keystone
 
+
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
+
 The **Keystone** is the L2 bolt-on layer on top of the L1 [AlgoVoi
 substrate](https://github.com/chopmob-cloud/algovoi-substrate) (RFC 8785 JCS canonicalisation +
 SHA-256). Where L1 gives you one primitive, `ref = "sha256:" + SHA-256(RFC 8785 JCS(payload))`, L2
