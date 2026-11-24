@@ -1,6 +1,6 @@
 # algovoi-keystone
 
-[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE) [![algovoi-secure-hub](https://img.shields.io/badge/algovoi--secure--hub-8A2BE2)](https://github.com/chopmob-cloud/algovoi-secure-hub)
 
 The **Keystone** is the L2 bolt-on layer on top of the L1 [AlgoVoi
 substrate](https://github.com/chopmob-cloud/algovoi-substrate) (RFC 8785 JCS canonicalisation +
